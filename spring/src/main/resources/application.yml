@@ -1,0 +1,21 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: venti
+  main:
+    web-application-type: reactive
+  threads:
+    virtual:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,beans,env,heapdump,threaddump,scheduledtasks
+  prometheus:
+    metrics:
+      export:
+        enabled: true
