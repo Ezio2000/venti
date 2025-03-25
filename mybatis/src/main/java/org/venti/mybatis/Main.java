@@ -1,12 +1,9 @@
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.venti.mybatis.dao.UserMapper;
 import org.venti.mybatis.entity.User;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 void main() throws IOException {
 
