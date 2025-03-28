@@ -1,12 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="org.venti.mybatis.dao.UserMapper">
-    <!-- 根据用户ID查询用户信息 -->
-    <select id="selectUser" parameterType="int" resultType="org.venti.mybatis.entity.User">
-        SELECT id, name, age FROM user WHERE id = #{id}
+
+    <resultMap id="userResult" type="org.venti.mybatis.entity.User">
+        <result column="name" property="name" typeHandler="org.venti.mybatis.typehandler.EasyTypeHandler"/>
+        <result column="phone" typeHandler="org.venti.mybatis.typehandler.EasyTypeHandler"/>
+    </resultMap>
+
+    <select id="selectUser" parameterType="int" resultType="org.venti.mybatis.entity.User" statementType="PREPARED">
+        SELECT id, name, age FROM user WHERE id = #{id, jdbcType=INTEGER}
     </select>
-    <insert id="insertUser" parameterType="org.venti.mybatis.entity.User">
-        INSERT INTO user (name, age) values (#{name}, #{age})
+    
+    <insert id="insertUser" parameterType="org.venti.mybatis.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (name, age) values (#{name, jdbcType=VARCHAR}, #{age, jdbcType=INTEGER})
     </insert>
+
+    <select id="selectUserIdsByNameAndAge">
+        SELECT id FROM user WHERE name = #{tarName, typeHandler=org.venti.mybatis.typehandler.EasyTypeHandler} AND age >= #{minAge}
+    </select>
+
+    <select id="selectAllUsers">
+        SELECT * FROM user
+    </select>
+
+    <select id="selectAllPhones">
+        SELECT phone FROM user WHERE phone IS NOT NULL
+    </select>
+
+    <select id="dangerSelect">
+        SELECT id FROM user ${dangerSql}
+    </select>
+    
 </mapper>

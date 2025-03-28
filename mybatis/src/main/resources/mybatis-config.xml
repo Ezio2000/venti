@@ -2,6 +2,26 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+
+    <properties>
+        <!-- 启用默认值特性 -->
+        <property name="org.apache.ibatis.parsing.PropertyParser.enable-default-value" value="true"/>
+        <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://mysql-dev.ruqimobility.com:13306/ruqi_gather"/>
+        <property name="username" value="gac_travel_dev_new"/>
+        <property name="password" value="NJElna9OCLisAi#5RfY8oi#M1Qp71ZX"/>
+    </properties>
+
+    <settings>
+        <setting name="defaultExecutorType" value="REUSE"/>
+        <setting name="localCacheScope" value="SESSION"/>
+        <setting name="proxyFactory" value="CGLIB"/>
+    </settings>
+
+    <typeHandlers>
+        <typeHandler handler="org.venti.mybatis.typehandler.EasyTypeHandler" javaType="java.lang.String" jdbcType="VARCHAR"/>
+    </typeHandlers>
+
     <!-- 配置数据库环境 -->
     <environments default="development">
         <environment id="development">
@@ -9,10 +29,10 @@
             <transactionManager type="JDBC"/>
             <!-- 配置数据库连接池 -->
             <dataSource type="POOLED">
-                <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://mysql-dev.ruqimobility.com:13306/ruqi_gather"/>
-                <property name="username" value="gac_travel_dev_new"/>
-                <property name="password" value="NJElna9OCLisAi#5RfY8oi#M1Qp71ZX"/>
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
             </dataSource>
         </environment>
     </environments>
@@ -21,4 +41,5 @@
     <mappers>
         <mapper resource="mapper/UserMapper.xml"/>
     </mappers>
+
 </configuration>

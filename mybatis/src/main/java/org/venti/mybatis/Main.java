@@ -15,22 +15,37 @@ void main() throws IOException {
     var sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
 
     // 3. 获取 SqlSession
-    try (var session = sqlSessionFactory.openSession()) {
+    try (var session = sqlSessionFactory.openSession(true)) {
         // 4. 获取 Mapper 接口实例
         var mapper = session.getMapper(UserMapper.class);
 
         // 5. 执行插入操作
-        mapper.insertUser(new User() {{
+        var newUser = new User() {{
             setName("abcd");
             setAge(10);
-        }});
+        }};
+        mapper.insertUser(newUser);
 
         // 6. 执行查询操作
-        var user = mapper.selectUser(5);
+        var user = mapper.selectUser(newUser.getId());
 
-        session.commit();
+        var userIds = mapper.selectUserIdsByNameAndAge(newUser.getName(), user.getAge() - 1);
 
-        System.out.println("查询结果: " + user);
+        var users = mapper.selectAllUsers();
+
+        var phones = mapper.selectAllPhones();
+
+        var dangerIds = mapper.dangerSelect(" WHERE 1 = 1");
+
+        System.out.println("查询结果1: " + user);
+
+        System.out.println("查询结果2: " + userIds);
+
+        System.out.println("查询结果3: " + users);
+
+        System.out.println("查询结果4: " + phones);
+
+        System.out.println("查询结果5： " + dangerIds);
     }
 
 }
