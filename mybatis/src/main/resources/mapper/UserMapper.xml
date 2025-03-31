@@ -5,8 +5,8 @@
 <mapper namespace="org.venti.mybatis.dao.UserMapper">
 
     <resultMap id="userResult" type="org.venti.mybatis.entity.User">
-        <result column="name" property="name" typeHandler="org.venti.mybatis.typehandler.EasyTypeHandler"/>
-        <result column="phone" typeHandler="org.venti.mybatis.typehandler.EasyTypeHandler"/>
+<!--        <result column="name" property="name" typeHandler="org.venti.mybatis.typehandler.EasyTypeHandler"/>-->
+<!--        <result column="phone" typeHandler="org.venti.mybatis.typehandler.EasyTypeHandler"/>-->
     </resultMap>
 
     <select id="selectUser" parameterType="int" resultType="org.venti.mybatis.entity.User" statementType="PREPARED">

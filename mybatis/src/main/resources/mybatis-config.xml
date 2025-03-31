@@ -19,8 +19,17 @@
     </settings>
 
     <typeHandlers>
-        <typeHandler handler="org.venti.mybatis.typehandler.EasyTypeHandler" javaType="java.lang.String" jdbcType="VARCHAR"/>
+<!--        <typeHandler handler="org.venti.mybatis.typehandler.EasyTypeHandler" javaType="java.lang.String" jdbcType="VARCHAR"/>-->
     </typeHandlers>
+    
+    <plugins>
+<!--        <plugin interceptor="org.venti.mybatis.intercept.GetStatementInterceptor">-->
+<!--            <property name="logLevel" value="DEBUG"/>-->
+<!--        </plugin>-->
+        <plugin interceptor="org.venti.mybatis.intercept.QueryResultDecryptInterceptor">
+            <property name="a" value="1"/>
+        </plugin>
+    </plugins>
 
     <!-- 配置数据库环境 -->
     <environments default="development">
