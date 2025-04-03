@@ -23,12 +23,7 @@
     </typeHandlers>
     
     <plugins>
-<!--        <plugin interceptor="org.venti.mybatis.intercept.GetStatementInterceptor">-->
-<!--            <property name="logLevel" value="DEBUG"/>-->
-<!--        </plugin>-->
-        <plugin interceptor="org.venti.mybatis.intercept.QueryResultDecryptInterceptor">
-            <property name="a" value="1"/>
-        </plugin>
+        <plugin interceptor="org.venti.mybatis.intercept.EncryptWhenUpdateInterceptor"/>
     </plugins>
 
     <!-- 配置数据库环境 -->

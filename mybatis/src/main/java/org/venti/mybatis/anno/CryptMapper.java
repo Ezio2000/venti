@@ -4,8 +4,8 @@ import java.lang.annotation.*;
 
 @Documented
 @Inherited
-@Target({ElementType.FIELD, ElementType.PARAMETER})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CryptData {
-    String cryptField();
+public @interface CryptMapper {
+    Class<?> entityClazz();
 }
