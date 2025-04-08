@@ -1,9 +1,8 @@
 package org.venti.mybatis.meta;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 
-public class MapperMethodMetaManager extends HashMap<String, Method> {
+public class MapperMethodMetaManager extends HashMap<String, MapperMethodMeta> {
 
     private static volatile MapperMethodMetaManager INSTANCE;
 

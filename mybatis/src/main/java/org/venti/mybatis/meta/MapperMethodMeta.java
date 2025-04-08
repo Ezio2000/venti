@@ -18,7 +18,7 @@ public class MapperMethodMeta {
 
     private Method method;
 
-    private CryptData[] cryptDatas;
+    private Collection<CryptData> cryptDataCollection;
 
     private Collection<Tuple<String, String>> fieldTupleCollection;
 

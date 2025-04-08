@@ -1,5 +1,8 @@
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.venti.common.struc.Tuple;
+import org.venti.mybatis.anno.CryptData;
 import org.venti.mybatis.anno.CryptMapper;
 import org.venti.mybatis.dao.UserMapper;
 import org.venti.mybatis.entity.User;
@@ -7,6 +10,9 @@ import org.venti.mybatis.meta.MapperMethodMeta;
 import org.venti.mybatis.meta.MapperMethodMetaManager;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 void main() throws IOException {
 
@@ -32,19 +38,47 @@ void main() throws IOException {
             if (method.getParameterTypes().length == 0) {
                 continue;
             }
+            // 解析mapper元数据注解
+            var cryptDataList = new ArrayList<CryptData>();
+            var fieldTupleList = new ArrayList<Tuple<String, String>>();
             if (method.getParameterTypes().length == 1 && entityClazz.isAssignableFrom(method.getParameterTypes()[0])) {
-                // 对象注入meta
+                // 当方法对象为jdbc对象时，解析jdbc对象
+                var fields = entityClazz.getDeclaredFields();
+                for (var field : fields) {
+                    if (field.isAnnotationPresent(CryptData.class)) {
+                        var cryptDataAnno = field.getAnnotation(CryptData.class);
+                        var cipherFieldName = cryptDataAnno.cryptField();
+                        if (Arrays.stream(fields).map(Field::getName).toList().contains(cipherFieldName)) {
+                            cryptDataList.add(cryptDataAnno);
+                            fieldTupleList.add(new Tuple<>(field.getName(), cipherFieldName));
+                        }
+                    }
+                }
             } else {
-                // 参数注入meta
+                // 当方法对象为Param.Map时，解析parameters对象
+                var parameters = method.getParameters();
+                for (var parameter : parameters) {
+                    if (parameter.isAnnotationPresent(CryptData.class)) {
+                        var cryptDataAnno = parameter.getAnnotation(CryptData.class);
+                        var cipherFieldName = cryptDataAnno.cryptField();
+                        if (Arrays.stream(parameters).map(
+                                p -> p.getAnnotation(Param.class).value()
+                        ).toList().contains(cipherFieldName)) {
+                            cryptDataList.add(cryptDataAnno);
+                            fieldTupleList.add(new Tuple<>(parameter.getAnnotation(Param.class).value(), cipherFieldName));
+                        }
+                    }
+                }
             }
             // todo 参数注入，写到这里！
-            MapperMethodMeta.builder()
+            var meta = MapperMethodMeta.builder()
                     .id(STR."\{mapper.getName()}.\{method.getName()}")
                     .clazz(mapper)
                     .method(method)
-//                    .cryptDatas(method.)
+                    .cryptDataCollection(cryptDataList)
+                    .fieldTupleCollection(fieldTupleList)
                     .build();
-            manager.put(STR."\{mapper.getName()}.\{method.getName()}", method);
+            manager.put(STR."\{mapper.getName()}.\{method.getName()}", meta);
         }
     }
 

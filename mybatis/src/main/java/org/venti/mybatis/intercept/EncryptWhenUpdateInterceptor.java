@@ -29,38 +29,28 @@ public class EncryptWhenUpdateInterceptor implements Interceptor {
         if (parameter == null) {}
         else if (parameter instanceof MapperMethod.ParamMap paramMap) {
             var mapperMethodName = mappedStatement.getId();
-            var method = manager.get(mapperMethodName);
-            var methodParameters = method.getParameters();
-            for (var plainMethodParameter : methodParameters) {
-                var cryptDataAnno = plainMethodParameter.getDeclaredAnnotation(CryptData.class);
-                var plainParamAnno = plainMethodParameter.getDeclaredAnnotation(Param.class);
-                if (cryptDataAnno != null) {
-                    var cryptField = cryptDataAnno.cryptField();
-                    for (var cipherMethodParameter : methodParameters) {
-                        var cipherParamAnno = cipherMethodParameter.getDeclaredAnnotation(Param.class);
-                        if (cipherParamAnno.value().equals(cryptField)) {
-                            var plain = (String) paramMap.get(plainParamAnno.value());
-                            paramMap.put(plainParamAnno.value(), "");
-                            paramMap.put(cipherParamAnno.value(), encrypt(plain));
-                        }
-                    }
+            var meta = manager.get(mapperMethodName);
+            if (meta != null) {
+                var tupleCollection = meta.getFieldTupleCollection();
+                for (var tuple : tupleCollection) {
+                    var plain = (String) paramMap.get(tuple.e1());
+                    paramMap.put(tuple.e1(), "");
+                    paramMap.put(tuple.e2(), encrypt(plain));
                 }
             }
         } else {
-            var fields = parameter.getClass().getDeclaredFields();
-            for (var plainField : fields) {
-                var cryptDataAnno = plainField.getDeclaredAnnotation(CryptData.class);
-                if (cryptDataAnno != null) {
-                    var cryptField = cryptDataAnno.cryptField();
-                    for (var cipherField : fields) {
-                        if (cipherField.getName().equals(cryptField)) {
-                            plainField.setAccessible(true);
-                            cipherField.setAccessible(true);
-                            var plain = (String) plainField.get(parameter);
-                            plainField.set(parameter, "");
-                            cipherField.set(parameter, encrypt(plain));
-                        }
-                    }
+            var mapperMethodName = mappedStatement.getId();
+            var meta = manager.get(mapperMethodName);
+            if (meta != null) {
+                var tupleCollection = meta.getFieldTupleCollection();
+                for (var tuple : tupleCollection) {
+                    var plainField = parameter.getClass().getDeclaredField(tuple.e1());
+                    var cipherField = parameter.getClass().getDeclaredField(tuple.e2());
+                    plainField.setAccessible(true);
+                    cipherField.setAccessible(true);
+                    var plain = (String) plainField.get(parameter);
+                    plainField.set(parameter, "");
+                    cipherField.set(parameter, encrypt(plain));
                 }
             }
         }
