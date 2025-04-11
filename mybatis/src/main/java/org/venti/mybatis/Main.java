@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-void main() throws IOException {
+void main() throws IOException, NoSuchFieldException {
 
     // 1. 加载 MyBatis 配置文件
     var resource = "mybatis-config.xml";
@@ -40,7 +40,8 @@ void main() throws IOException {
             }
             // 解析mapper元数据注解
             var cryptDataList = new ArrayList<CryptData>();
-            var fieldTupleList = new ArrayList<Tuple<String, String>>();
+            var paramTupleList = new ArrayList<Tuple<String, String>>();
+            var fieldTupleList = new ArrayList<Tuple<Field, Field>>();
             if (method.getParameterTypes().length == 1 && entityClazz.isAssignableFrom(method.getParameterTypes()[0])) {
                 // 当方法对象为jdbc对象时，解析jdbc对象
                 var fields = entityClazz.getDeclaredFields();
@@ -50,22 +51,25 @@ void main() throws IOException {
                         var cipherFieldName = cryptDataAnno.cryptField();
                         if (Arrays.stream(fields).map(Field::getName).toList().contains(cipherFieldName)) {
                             cryptDataList.add(cryptDataAnno);
-                            fieldTupleList.add(new Tuple<>(field.getName(), cipherFieldName));
+                            var cipherField = entityClazz.getDeclaredField(cipherFieldName);
+                            field.setAccessible(true);
+                            cipherField.setAccessible(true);
+                            fieldTupleList.add(new Tuple<>(field, cipherField));
                         }
                     }
                 }
             } else {
                 // 当方法对象为Param.Map时，解析parameters对象
-                var parameters = method.getParameters();
-                for (var parameter : parameters) {
-                    if (parameter.isAnnotationPresent(CryptData.class)) {
-                        var cryptDataAnno = parameter.getAnnotation(CryptData.class);
+                var params = method.getParameters();
+                for (var param : params) {
+                    if (param.isAnnotationPresent(CryptData.class)) {
+                        var cryptDataAnno = param.getAnnotation(CryptData.class);
                         var cipherFieldName = cryptDataAnno.cryptField();
-                        if (Arrays.stream(parameters).map(
+                        if (Arrays.stream(params).map(
                                 p -> p.getAnnotation(Param.class).value()
                         ).toList().contains(cipherFieldName)) {
                             cryptDataList.add(cryptDataAnno);
-                            fieldTupleList.add(new Tuple<>(parameter.getAnnotation(Param.class).value(), cipherFieldName));
+                            paramTupleList.add(new Tuple<>(param.getAnnotation(Param.class).value(), cipherFieldName));
                         }
                     }
                 }
@@ -76,6 +80,7 @@ void main() throws IOException {
                     .clazz(mapper)
                     .method(method)
                     .cryptDataCollection(cryptDataList)
+                    .paramTupleCollection(paramTupleList)
                     .fieldTupleCollection(fieldTupleList)
                     .build();
             manager.put(STR."\{mapper.getName()}.\{method.getName()}", meta);
@@ -92,7 +97,7 @@ void main() throws IOException {
         newUser.setAge(100);
         mapper.insertUser(newUser);
 
-        mapper.updateUser(newUser.getId(), "ningjun", 24, null);
+//        mapper.updateUser(newUser.getId(), "ningjun", 24, null);
 
         // 6. 执行查询操作
         var user = mapper.selectUser(newUser.getId());
