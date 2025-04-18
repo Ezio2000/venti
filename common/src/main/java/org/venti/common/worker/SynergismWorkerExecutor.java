@@ -30,12 +30,6 @@ public class SynergismWorkerExecutor extends WorkerExecutor {
     private final List<ScheduledFuture<?>> futureList = new ArrayList<>();
 
     /**
-     * 工作者关闭后的回调方法，默认为空实现
-     */
-    @Setter
-    private Runnable afterShutdownCallback = () -> {};
-
-    /**
      * 构造函数，初始化协同工作者执行器
      *
      * @param workerMap 工作者及其对应的执行次数
@@ -74,8 +68,5 @@ public class SynergismWorkerExecutor extends WorkerExecutor {
         for (var future : futureList) {
             future.cancel(true);
         }
-
-        // 执行关闭后的回调
-        afterShutdownCallback.run();
     }
 }

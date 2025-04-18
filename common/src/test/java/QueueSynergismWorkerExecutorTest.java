@@ -35,6 +35,7 @@ void main() {
         Thread.sleep(1000);
         return false;
     });
+    // 会抛出Interrupt异常，因为queueReader2会被关闭
     var executor = new QueueSynergismWorkerExecutor<Integer>(
             new HashMap<>() {
                 { put(queueWriter, 1); }
@@ -42,6 +43,14 @@ void main() {
                 { put(queueReader2, 1); }
             }, new ArrayBlockingQueue<>(200)
     );
+    // 不会抛出Interrupt异常，因为queueReader2不会被关闭
+//    var executor = new QueueWorkerExecutor<Integer>(
+//            new HashMap<>() {
+//                { put(queueWriter, 1); }
+//                { put(queueReader1, 1); }
+//                { put(queueReader2, 1); }
+//            }, new ArrayBlockingQueue<>(200)
+//    );
     executor.start();
     LockSupport.park();
 }

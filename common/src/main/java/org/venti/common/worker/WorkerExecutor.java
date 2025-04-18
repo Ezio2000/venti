@@ -1,5 +1,6 @@
 package org.venti.common.worker;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -24,6 +25,12 @@ public class WorkerExecutor {
      * 使用虚拟线程的执行器
      */
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+    /**
+     * 工作者关闭后的回调方法，默认为空实现
+     */
+    @Setter
+    private Runnable afterShutdownCallback = () -> {};
 
     /**
      * 构造函数，初始化工作者执行器
@@ -56,6 +63,8 @@ public class WorkerExecutor {
     public void shutdown() {
         // 立即关闭执行器
         executor.shutdownNow();
+        // 执行关闭后的回调
+        afterShutdownCallback.run();
     }
 
     /**

@@ -1,11 +1,11 @@
 package org.venti.common.worker.queue;
 
-import org.venti.common.worker.SynergismWorkerExecutor;
+import org.venti.common.worker.WorkerExecutor;
 
 import java.util.Map;
 import java.util.Queue;
 
-public class QueueSynergismWorkerExecutor<T> extends SynergismWorkerExecutor {
+public class QueueWorkerExecutor<T> extends WorkerExecutor {
 
     private final Queue<T> queue;
 
@@ -16,7 +16,7 @@ public class QueueSynergismWorkerExecutor<T> extends SynergismWorkerExecutor {
      *
      * @param workerMap 工作者及其对应的执行次数
      */
-    public QueueSynergismWorkerExecutor(Map<QueueWorker<T>, Integer> workerMap, Queue<T> queue) {
+    public QueueWorkerExecutor(Map<QueueWorker<T>, Integer> workerMap, Queue<T> queue) {
         super(workerMap);
         this.queue = queue;
         this.queueWorkerMap = workerMap;

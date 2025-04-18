@@ -1,9 +1,7 @@
 package org.venti.common.worker.queue;
 
-import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
-import java.util.function.Predicate;
 
 public class BlockingQueueWorker<T> extends QueueWorker<T> {
 
