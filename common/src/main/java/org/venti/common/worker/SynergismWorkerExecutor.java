@@ -40,7 +40,7 @@ public class SynergismWorkerExecutor extends WorkerExecutor {
      *
      * @param workerMap 工作者及其对应的执行次数
      */
-    public SynergismWorkerExecutor(Map<Worker, Integer> workerMap) {
+    public SynergismWorkerExecutor(Map<? extends Worker, Integer> workerMap) {
         super(workerMap);
     }
 
@@ -52,6 +52,7 @@ public class SynergismWorkerExecutor extends WorkerExecutor {
         super.start();
 
         // 对每个工作者启动定时检查任务
+        // todo 能停但不能精确停
         for (var worker : workerMap.keySet()) {
             var future = scheduler.scheduleAtFixedRate(() -> {
                 if (worker.getState() == WorkerState.SHUTDOWN) {

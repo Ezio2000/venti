@@ -14,11 +14,11 @@
     </select>
     
     <insert id="insertUser" parameterType="org.venti.mybatis.entity.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user (name, age, crypt_name) values (#{name}, #{age}, #{cryptName})
+        INSERT INTO user (name, age, cryptName) values (#{name}, #{age}, #{cryptName})
     </insert>
 
     <update id="updateUser">
-        UPDATE user SET name = #{newName}, age = #{newAge}, crypt_name = #{cryptName} WHERE id = #{id}
+        UPDATE user SET name = #{newName}, age = #{newAge}, cryptName = #{cryptName} WHERE id = #{id}
     </update>
 
     <select id="selectUserIdsByNameAndAge">

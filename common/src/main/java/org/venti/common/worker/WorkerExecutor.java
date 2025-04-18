@@ -18,7 +18,7 @@ public class WorkerExecutor {
     /**
      * 存储工作者及其对应的执行次数
      */
-    protected final Map<Worker, Integer> workerMap;
+    protected final Map<? extends Worker, Integer> workerMap;
 
     /**
      * 使用虚拟线程的执行器
@@ -30,7 +30,7 @@ public class WorkerExecutor {
      *
      * @param workerMap 工作者及其对应的执行次数
      */
-    public WorkerExecutor(Map<Worker, Integer> workerMap) {
+    public WorkerExecutor(Map<? extends Worker, Integer> workerMap) {
         this.workerMap = workerMap;
     }
 
