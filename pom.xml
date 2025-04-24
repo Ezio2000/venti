@@ -14,6 +14,7 @@
         <module>nacos</module>
         <module>spring</module>
         <module>mybatis</module>
+        <module>agile-form</module>
     </modules>
 
     <dependencies>

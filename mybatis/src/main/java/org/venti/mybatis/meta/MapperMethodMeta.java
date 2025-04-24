@@ -2,7 +2,7 @@ package org.venti.mybatis.meta;
 
 import lombok.Builder;
 import lombok.Data;
-import org.venti.common.struc.Tuple;
+import org.venti.common.struc.tuple.Tuple;
 import org.venti.mybatis.anno.CryptData;
 
 import java.lang.reflect.Field;

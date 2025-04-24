@@ -1,7 +1,7 @@
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.venti.common.struc.Tuple;
+import org.venti.common.struc.tuple.Tuple;
 import org.venti.mybatis.anno.CryptData;
 import org.venti.mybatis.anno.CryptMapper;
 import org.venti.mybatis.dao.UserMapper;
@@ -25,8 +25,8 @@ void main() throws IOException, NoSuchFieldException {
 
     // 3.缓存mapperMethod
     var manager = MapperMethodMetaManager.getInstance();
-    var configuraton = sqlSessionFactory.getConfiguration();
-    var mapperRegistry = configuraton.getMapperRegistry();
+    var configuration = sqlSessionFactory.getConfiguration();
+    var mapperRegistry = configuration.getMapperRegistry();
     for (var mapper : mapperRegistry.getMappers()) {
         var cryptMapperAnno = mapper.getDeclaredAnnotation(CryptMapper.class);
         if (cryptMapperAnno == null) {

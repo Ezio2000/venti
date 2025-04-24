@@ -12,8 +12,6 @@ public abstract class AbsWorker implements Worker{
     }
 
     @Override
-    public void run() {
-
-    }
+    public abstract void run();
 
 }
