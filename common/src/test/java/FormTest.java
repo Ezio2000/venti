@@ -1,8 +1,8 @@
 import org.venti.common.struc.dform.cell.impl.BooleanCell;
 import org.venti.common.struc.dform.cell.impl.NumberCell;
 import org.venti.common.struc.dform.cell.impl.TextCell;
-import org.venti.common.struc.dform.form.Form;
-import org.venti.common.struc.dform.sheet.Sheet;
+import org.venti.common.struc.dform.core.Form;
+import org.venti.common.struc.dform.core.Sheet;
 import org.venti.common.struc.dform.visitor.OrderlyVisitor;
 
 import java.util.concurrent.locks.LockSupport;

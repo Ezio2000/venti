@@ -1,9 +1,9 @@
 package org.venti.common.struc.dform.visitor;
 
-import org.venti.common.struc.dform.cell.Cell;
-import org.venti.common.struc.dform.form.Form;
+import org.venti.common.struc.dform.core.Cell;
+import org.venti.common.struc.dform.core.Form;
 import org.venti.common.struc.dform.format.Formatter;
-import org.venti.common.struc.dform.sheet.Sheet;
+import org.venti.common.struc.dform.core.Sheet;
 
 public class OrderlyVisitor implements CellVisitor, SheetVisitor, FormVisitor {
 

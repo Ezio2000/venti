@@ -1,6 +1,6 @@
 package org.venti.common.struc.dform.visitor;
 
-import org.venti.common.struc.dform.cell.Cell;
+import org.venti.common.struc.dform.core.Cell;
 
 public interface CellVisitor {
 

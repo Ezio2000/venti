@@ -1,8 +1,6 @@
 package org.venti.common.struc.dform.visitor;
 
-import org.venti.common.struc.dform.cell.Cell;
-import org.venti.common.struc.dform.form.Form;
-import org.venti.common.struc.dform.sheet.Sheet;
+import org.venti.common.struc.dform.core.Form;
 
 public interface FormVisitor {
 

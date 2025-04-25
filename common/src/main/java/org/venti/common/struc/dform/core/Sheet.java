@@ -1,7 +1,6 @@
-package org.venti.common.struc.dform.sheet;
+package org.venti.common.struc.dform.core;
 
 import lombok.Getter;
-import org.venti.common.struc.dform.cell.Cell;
 import org.venti.common.struc.dform.template.SheetTemplate;
 import org.venti.common.struc.dform.visitor.SheetVisitor;
 
