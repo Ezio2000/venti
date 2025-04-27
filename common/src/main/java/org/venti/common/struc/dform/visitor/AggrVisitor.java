@@ -19,8 +19,10 @@ public abstract class AggrVisitor implements CellVisitor, SheetVisitor, FormVisi
 
     @Override
     public void visit(Form form) {
-        visit0(form);
-        form.getSheetMap().forEach((_, sheet) -> sheet.accept(this));
+        Thread.ofVirtual().name(STR."aggr-vistor-thread-\{form.getName()}").start(() -> {
+            visit0(form);
+            form.getSheetMap().forEach((_, sheet) -> sheet.accept(this));
+        });
     }
 
     public void visit0(Cell<?> cell) {};

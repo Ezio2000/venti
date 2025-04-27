@@ -1,4 +1,5 @@
 import org.venti.common.struc.dform.cell.impl.BooleanCell;
+import org.venti.common.struc.dform.cell.impl.DateCell;
 import org.venti.common.struc.dform.cell.impl.NumberCell;
 import org.venti.common.struc.dform.cell.impl.TextCell;
 import org.venti.common.struc.dform.core.Cell;
@@ -6,7 +7,6 @@ import org.venti.common.struc.dform.core.Form;
 import org.venti.common.struc.dform.core.Sheet;
 import org.venti.common.struc.dform.format.Formatter;
 import org.venti.common.struc.dform.visitor.AggrVisitor;
-import org.venti.common.struc.dform.visitor.AsyncAggrVisitor;
 
 import java.util.concurrent.locks.LockSupport;
 
@@ -19,6 +19,7 @@ void main() {
     var cell21 = new NumberCell("cell21", "3.14%");
     var cell22 = new BooleanCell("cell22", "true");
     var cell23 = new NumberCell("cell23", "你好");
+    var cell24 = new DateCell("cell24", "2018-11-23");
     form.addSheet(sheet1);
     form.addSheet(sheet2);
     sheet1.addCell(cell11);
@@ -26,9 +27,12 @@ void main() {
     sheet2.addCell(cell21);
     sheet2.addCell(cell22);
     sheet2.addCell(cell23);
-    form.accept(new AsyncAggrVisitor() {
+    sheet2.addCell(cell24);
+    form.accept(new AggrVisitor() {
+//    form.accept(new AsyncAggrVisitor() {
         @Override
         public void visit0(Cell<?> cell) {
+            System.out.println(Thread.currentThread());
             try {
                 System.out.println(STR."------ \{cell.getName()} : \{cell.format()}");
             } catch (Formatter.FormatException e) {
@@ -41,6 +45,7 @@ void main() {
         }
         @Override
         public void visit0(Form form) {
+            System.out.println(Thread.currentThread());
             System.out.println(STR."\{form.getName()}");
         }
     });
