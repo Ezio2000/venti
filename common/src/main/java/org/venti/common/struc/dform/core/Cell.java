@@ -13,7 +13,6 @@ public abstract class Cell<T> extends CellTemplate {
     @Setter
     protected String data;
 
-    @Setter
     protected Formatter<T> formatter;
 
     public Cell(String name, CellType type, String data, Formatter<T> formatter) {
