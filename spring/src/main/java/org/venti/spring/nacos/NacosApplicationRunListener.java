@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.MapPropertySource;
 import org.venti.common.util.InetUtil;
-import org.venti.spring.nacos.api.NacosApi;
+import org.venti.spring.nacos.api.Nacos;
 
 import java.net.SocketException;
 import java.time.Duration;
@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 public class NacosApplicationRunListener implements SpringApplicationRunListener {
 
-    private NacosApi nacosApi;
+    private Nacos nacos;
 
     /**
      * 在应用上下文准备好后被调用
@@ -31,13 +31,13 @@ public class NacosApplicationRunListener implements SpringApplicationRunListener
      */
     @Override
     public void contextPrepared(ConfigurableApplicationContext context) {
-        NacosApi nacosApi;
+        Nacos nacos;
         var env = context.getEnvironment().getProperty("spring.profiles.active");
         var appName = context.getEnvironment().getProperty("spring.application.name");
         var port = context.getEnvironment().getProperty("server.port");
         try {
             // 根据不同环境动态构建NacosApi实例
-            nacosApi = new NacosApi(
+            nacos = new Nacos(
                     String.format("nacos-%s.ruqimobility.com:80", Objects.equals(env, "local") ? "dev" : env),
                     String.format("namespace-%s", Objects.equals(env, "local") ? "dev" : env),
                     String.format("cluster-%s", Objects.equals(env, "local") ? "dev" : env),
@@ -51,7 +51,7 @@ public class NacosApplicationRunListener implements SpringApplicationRunListener
             throw new RuntimeException(e);
         }
         try {
-            nacosApi.subscribe(STR."\{appName}.yml", new NacosApi.VirListener() {
+            nacos.subscribe(STR."\{appName}.yml", new Nacos.VirListener() {
                 @Override
                 public void receiveConfigChange(ConfigChangeEvent event) {
                     var changeCollection = event.getChangeItems();
@@ -65,7 +65,7 @@ public class NacosApplicationRunListener implements SpringApplicationRunListener
         } catch (NacosException e) {
             throw new RuntimeException(e);
         }
-        this.nacosApi = nacosApi;
+        this.nacos = nacos;
     }
 
     /**
@@ -79,7 +79,7 @@ public class NacosApplicationRunListener implements SpringApplicationRunListener
     public void ready(ConfigurableApplicationContext context, Duration timeTaken) {
         try {
             // 注册应用到Nacos
-            nacosApi.register();
+            nacos.register();
         } catch (NacosException e) {
             // 注册失败时，抛出运行时异常
             throw new RuntimeException(e);

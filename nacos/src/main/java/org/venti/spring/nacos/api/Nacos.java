@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
  * @date 2025/2/18 19:26
  * @description Nacos API的简单封装，提供服务注册、发现、订阅等功能
  */
-public class NacosApi {
+public class Nacos {
 
     /**
      * nacos地址
@@ -60,7 +60,7 @@ public class NacosApi {
      * @param ip          服务实例的IP
      * @param port        服务实例的端口
      */
-    public NacosApi(String serverAddr, String namespace, String cluster, String group, String serviceName, String ip, int port) {
+    public Nacos(String serverAddr, String namespace, String cluster, String group, String serviceName, String ip, int port) {
         this.nacosConfig = new NacosConfig(serverAddr, namespace, cluster, group, serviceName, ip, port);
         this.current = buildInstance();
         this.properties = buildProperties();
