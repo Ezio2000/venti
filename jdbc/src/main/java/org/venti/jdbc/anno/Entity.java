@@ -8,10 +8,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.PARAMETER)
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Param {
+public @interface Entity {
 
-    Class<? extends TypeHandler<?>> typeHandler() default StringHandler.class;
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Column {
+
+        String value();
+
+        Class<? extends TypeHandler<?>> typeHandler() default StringHandler.class;
+
+    }
 
 }

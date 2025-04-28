@@ -34,18 +34,18 @@ public class BoundSql {
         }
     }
 
-    public <T> Map<String, T> bind(ResultSet rs) throws SQLException {
-        var map = new HashMap<String, T>();
+    public Map<String, Object> bind(ResultSet rs) throws SQLException {
+        var map = new HashMap<String, Object>();
         for (var entry : resultMap.entrySet()) {
             var columnName = entry.getKey();
             var typeHandler = entry.getValue();
-            T t;
+            Object obj;
             try {
-                t = (T) typeHandler.getResult(rs, columnName);
+                obj = typeHandler.getResult(rs, columnName);
             } catch (ClassCastException e) {
                 throw new SQLException("result 的类型与 TypeHandler 泛型类型 T 不匹配", e);
             }
-            map.put(columnName, t);
+            map.put(columnName, obj);
         }
         return map;
     }

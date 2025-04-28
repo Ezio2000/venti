@@ -1,21 +1,25 @@
 package org.venti.jdbc.meta;
 
-import org.venti.jdbc.anno.SqlType;
-import org.venti.jdbc.api.Jdbc;
-import org.venti.jdbc.typehandler.TypeHandler;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Meta {
 
-    private Jdbc jdbc;
+    @Setter
+    @Getter
+    private String id;
 
-    private String sql;
+    private Map<String, MethodMeta> methodMetaMap = new HashMap<>();
 
-    private SqlType sqlType;
+    public void putMeta(String metaId, MethodMeta methodMeta) {
+        methodMetaMap.put(metaId, methodMeta);
+    }
 
-    private Map<Integer, TypeHandler> paramMap;
-
-    private Map<String, TypeHandler> resultMap;
+    public MethodMeta getMeta(String metaId) {
+        return methodMetaMap.get(metaId);
+    }
 
 }
