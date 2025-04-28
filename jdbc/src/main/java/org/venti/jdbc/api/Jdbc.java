@@ -1,6 +1,6 @@
 package org.venti.jdbc.api;
 
-import org.venti.jdbc.proxy.BoundSql;
+import org.venti.jdbc.meta.BoundSql;
 import org.venti.jdbc.visitor.SelectVisitor;
 
 import javax.sql.DataSource;

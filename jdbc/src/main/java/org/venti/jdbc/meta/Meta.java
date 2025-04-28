@@ -14,12 +14,12 @@ public class Meta {
 
     private Map<String, MethodMeta> methodMetaMap = new HashMap<>();
 
-    public void putMeta(String metaId, MethodMeta methodMeta) {
-        methodMetaMap.put(metaId, methodMeta);
+    public void putMethodMeta(String methodMetaId, MethodMeta methodMeta) {
+        methodMetaMap.put(methodMetaId, methodMeta);
     }
 
-    public MethodMeta getMeta(String metaId) {
-        return methodMetaMap.get(metaId);
+    public MethodMeta getMethodMeta(String methodMetaId) {
+        return methodMetaMap.get(methodMetaId);
     }
 
 }

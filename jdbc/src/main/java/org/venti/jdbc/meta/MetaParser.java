@@ -21,7 +21,7 @@ public class MetaParser {
         meta.setId(clazz.toGenericString());
         for (var method : clazz.getMethods()) {
             var methodMeta = parseMethod(method);
-            meta.putMeta(methodMeta.getId(), methodMeta);
+            meta.putMethodMeta(methodMeta.getId(), methodMeta);
         }
         return meta;
     }

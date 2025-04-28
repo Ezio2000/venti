@@ -1,4 +1,4 @@
-package org.venti.jdbc.proxy;
+package org.venti.jdbc.meta;
 
 import lombok.Builder;
 import lombok.Getter;
