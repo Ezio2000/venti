@@ -28,6 +28,7 @@ public class MetaParser {
                 var methodMeta = parseMethod(method);
                 meta.putMethodMeta(methodMeta.getId(), methodMeta);
             } else {
+                // todo 父类作为插件处理
                 var methodMeta = new MethodMeta();
                 methodMeta.setId(method.toGenericString());
                 methodMeta.setSqlType(SqlType.TRANSACTION);
