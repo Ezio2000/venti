@@ -22,9 +22,17 @@ public class MetaParser {
         }
         Meta meta = new Meta();
         meta.setId(clazz.toGenericString());
+        // 获取全部public方法
         for (var method : clazz.getMethods()) {
-            var methodMeta = parseMethod(method);
-            meta.putMethodMeta(methodMeta.getId(), methodMeta);
+            if (method.getDeclaringClass() == clazz) {
+                var methodMeta = parseMethod(method);
+                meta.putMethodMeta(methodMeta.getId(), methodMeta);
+            } else {
+                var methodMeta = new MethodMeta();
+                methodMeta.setId(method.toGenericString());
+                methodMeta.setSqlType(SqlType.TRANSACTION);
+                meta.putMethodMeta(methodMeta.getId(), methodMeta);
+            }
         }
         return meta;
     }

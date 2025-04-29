@@ -41,10 +41,21 @@ public class TransactionJdbc {
         }
     }
 
+    public void commit() throws SQLException {
+        conn.commit();
+        Transaction.commit();
+    }
+
+    public void rollback() throws SQLException {
+        conn.rollback();
+        Transaction.rollback();
+    }
+
     public void close() throws SQLException {
         if (conn != null) {
             conn.close();
         }
+        Transaction.clear();
     }
 
 }

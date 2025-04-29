@@ -1,5 +1,5 @@
 package org.venti.jdbc.anno;
 
 public enum SqlType {
-    QUERY, UPDATE, FORMULA
+    QUERY, UPDATE, FORMULA, TRANSACTION
 }

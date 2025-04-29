@@ -4,6 +4,7 @@ import lombok.Data;
 import org.venti.jdbc.anno.SqlType;
 import org.venti.jdbc.typehandler.TypeHandler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -19,8 +20,8 @@ public class MethodMeta {
 
     private Integer visitorIndex;
 
-    private Map<Integer, TypeHandler> paramMap;
+    private Map<Integer, TypeHandler> paramMap = new HashMap<>();
 
-    private Map<String, TypeHandler> resultMap;
+    private Map<String, TypeHandler> resultMap = new HashMap<>();
 
 }

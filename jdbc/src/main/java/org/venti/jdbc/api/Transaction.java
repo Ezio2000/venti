@@ -2,30 +2,26 @@ package org.venti.jdbc.api;
 
 public class Transaction {
 
-    public enum TransactionStatus {
-        SHUTDOWN, RUNNING, COMMIT, ROLLBACK
+    private final static ThreadLocal<TransactionJdbc> transactionJdbcThreadLocal = new ThreadLocal<>();
+
+    public static TransactionJdbc get() {
+        return transactionJdbcThreadLocal.get();
     }
 
-    private static final ThreadLocal<TransactionStatus> transactionStatusThreadLocal = ThreadLocal.withInitial(() -> TransactionStatus.SHUTDOWN);
-
-    public static void begin() {
-        transactionStatusThreadLocal.set(TransactionStatus.RUNNING);
+    public static void begin(TransactionJdbc transactionJdbc) {
+        transactionJdbcThreadLocal.set(transactionJdbc);
     }
 
     public static void commit() {
-        transactionStatusThreadLocal.set(TransactionStatus.COMMIT);
+        transactionJdbcThreadLocal.remove();
     }
 
     public static void rollback() {
-        transactionStatusThreadLocal.set(TransactionStatus.ROLLBACK);
+        transactionJdbcThreadLocal.remove();
     }
 
-    public static void shutdown() {
-        transactionStatusThreadLocal.set(TransactionStatus.SHUTDOWN);
-    }
-
-    public static TransactionStatus getStatus() {
-        return transactionStatusThreadLocal.get();
+    public static void clear() {
+        transactionJdbcThreadLocal.remove();
     }
 
 }

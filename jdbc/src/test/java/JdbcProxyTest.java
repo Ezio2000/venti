@@ -16,19 +16,23 @@ void main() {
     var meta = MetaParser.parse(UserMapper.class);
     SingletonFactory.getInstance(MetaManager.class).putMeta(meta.getId(), meta);
 
-    UserMapper userMapper = ProxyUtil.createProxy(UserMapper.class, new JdbcHandler(jdbc));
+    UserMapper userMapper = ProxyUtil.createProxy(UserMapper.class, new JdbcHandler(jdbc, UserMapper.class));
 
-    var selectCount1 = userMapper.selectAllUserByNameAndAge("ningjun", 10,
+    var selectCount = userMapper.selectAllUserByNameAndAge("ningjun", 10,
             map -> map.forEach((s, o) -> System.out.println(STR."\{s} : \{o}"))
     );
-    System.out.println(selectCount1);
+    System.out.println(selectCount);
 
     var selectCount2 = userMapper.selectUserByCryptName("abcd_encrypt", map -> System.out.println(map.get("id")));
     System.out.println(selectCount2);
 
+    userMapper.begin();
+
     var insertCount = userMapper.insertUser("ningjun", 112);
     System.out.println(insertCount);
 
-    var updateCount = userMapper.updateUserById("ningjun", 122, 175);
+    var updateCount = userMapper.updateUserById("ningjun", 124, 175);
     System.out.println(updateCount);
+
+    userMapper.commit();
 }

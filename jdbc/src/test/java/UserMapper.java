@@ -1,9 +1,10 @@
 import org.venti.jdbc.anno.*;
+import org.venti.jdbc.plugin.TransactionMapper;
 import org.venti.jdbc.typehandler.IntegerHandler;
 import org.venti.jdbc.visitor.SelectVisitor;
 
 @Mapper
-public interface UserMapper {
+public interface UserMapper extends TransactionMapper {
 
     @Sql(value = "select * from user where name = ? and age > ?", sqlType = SqlType.QUERY, resultType = User.class)
     int selectAllUserByNameAndAge(@Param String name, @Param(typeHandler = IntegerHandler.class) int age, SelectVisitor visitor);

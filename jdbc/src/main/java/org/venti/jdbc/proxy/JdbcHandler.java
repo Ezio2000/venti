@@ -4,6 +4,7 @@ import org.venti.common.struc.tuple.Tuple;
 import org.venti.common.util.SingletonFactory;
 import org.venti.jdbc.anno.SqlType;
 import org.venti.jdbc.api.Jdbc;
+import org.venti.jdbc.api.Transaction;
 import org.venti.jdbc.meta.BoundSql;
 import org.venti.jdbc.meta.MetaManager;
 import org.venti.jdbc.typehandler.TypeHandler;
@@ -18,13 +19,16 @@ public class JdbcHandler implements InvocationHandler {
 
     private final Jdbc jdbc;
 
-    public JdbcHandler(Jdbc jdbc) {
+    private final Class<?> clazz;
+
+    public JdbcHandler(Jdbc jdbc, Class<?> clazz) {
         this.jdbc = jdbc;
+        this.clazz = clazz;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        var metaId = method.getDeclaringClass().toGenericString();
+        var metaId = clazz.toGenericString();
         var methodMetaId = method.toGenericString();
         var methodMeta = SingletonFactory.getInstance(MetaManager.class)
                 .getMeta(metaId)
@@ -46,12 +50,33 @@ public class JdbcHandler implements InvocationHandler {
                 if (methodMeta.getVisitorIndex() <= 0) {
                     throw new SQLException("Visitor index is less than 0.");
                 }
-                return jdbc.query(boundSql, (SelectVisitor) args[methodMeta.getVisitorIndex()]);
+                if (Transaction.get() == null) {
+                    return jdbc.query(boundSql, (SelectVisitor) args[methodMeta.getVisitorIndex()]);
+                } else {
+                    return Transaction.get().query(boundSql, (SelectVisitor) args[methodMeta.getVisitorIndex()]);
+                }
             }
             case SqlType.UPDATE -> {
-                return jdbc.update(boundSql);
+                if (Transaction.get() == null) {
+                    return jdbc.update(boundSql);
+                } else {
+                    return Transaction.get().update(boundSql);
+                }
             }
             case SqlType.FORMULA -> {}
+            case SqlType.TRANSACTION -> {
+                switch (method.getName()) {
+                    case "begin" -> jdbc.transaction();
+                    case "commit" -> {
+                        jdbc.transaction().commit();
+                        jdbc.transaction().close();
+                    }
+                    case "rollback" -> {
+                        jdbc.transaction().rollback();
+                        jdbc.transaction().close();
+                    }
+                }
+            }
             default -> {}
         }
         return null;
