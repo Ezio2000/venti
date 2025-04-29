@@ -29,22 +29,23 @@ public class BoundSql {
             try {
                 typeHandler.setParam(ps, paramIndex, param);
             } catch (ClassCastException e) {
-                throw new SQLException("param 的类型与 TypeHandler 泛型类型 T 不匹配", e);
+                // todo 这个异常要再封装
+                throw new RuntimeException("param 的类型与 TypeHandler 泛型类型 T 不匹配", e);
             }
         }
     }
 
-    public Map<String, Object> bind(ResultSet rs) throws SQLException {
+    public Map<String, Object> bind(ResultSet rs) {
         var map = new HashMap<String, Object>();
         for (var entry : resultMap.entrySet()) {
             var columnName = entry.getKey();
             var typeHandler = entry.getValue();
-            Object obj;
+            Object obj = null;
             try {
                 obj = typeHandler.getResult(rs, columnName);
             } catch (ClassCastException e) {
-                throw new SQLException("result 的类型与 TypeHandler 泛型类型 T 不匹配", e);
-            }
+                throw new RuntimeException("result 的类型与 TypeHandler 泛型类型 T 不匹配", e);
+            } catch (SQLException _) {}
             map.put(columnName, obj);
         }
         return map;

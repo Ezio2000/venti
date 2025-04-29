@@ -11,6 +11,8 @@ public @interface Sql {
 
     String value();
 
-    SqlType type();
+    SqlType sqlType() default SqlType.UPDATE;
+
+    Class<?> resultType() default void.class;
 
 }

@@ -13,6 +13,8 @@ public class Jdbc {
      */
     private final DataSource dataSource;
 
+    private final ThreadLocal<TransactionJdbc> transactionJdbcThreadLocal = ThreadLocal.withInitial(() -> null);
+
     public Jdbc(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -31,6 +33,16 @@ public class Jdbc {
             var transactionJdbc = new TransactionJdbc(conn);
             return transactionJdbc.update(boundSql);
         }
+    }
+
+    public TransactionJdbc transaction() throws SQLException {
+        if (transactionJdbcThreadLocal.get() != null) {
+            return transactionJdbcThreadLocal.get();
+        }
+        var conn = dataSource.getConnection();
+        conn.setAutoCommit(false);
+        transactionJdbcThreadLocal.set(new TransactionJdbc(conn));
+        return transactionJdbcThreadLocal.get();
     }
 
 }

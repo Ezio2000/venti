@@ -41,4 +41,10 @@ public class TransactionJdbc {
         }
     }
 
+    public void close() throws SQLException {
+        if (conn != null) {
+            conn.close();
+        }
+    }
+
 }

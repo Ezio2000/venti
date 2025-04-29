@@ -1,7 +1,10 @@
 package org.venti.jdbc.meta;
 
+import org.venti.common.struc.tuple.Tuple;
+import org.venti.common.util.SingletonFactory;
 import org.venti.jdbc.anno.*;
 import org.venti.jdbc.typehandler.TypeHandler;
+import org.venti.jdbc.visitor.SelectVisitor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -35,29 +38,40 @@ public class MetaParser {
         }
         methodMeta.setId(method.toGenericString());
         methodMeta.setSql(sqlAnnotation.value());
-        methodMeta.setSqlType(sqlAnnotation.type());
+        methodMeta.setSqlType(sqlAnnotation.sqlType());
+        methodMeta.setResultType(sqlAnnotation.resultType());
         // 解析参数映射
-        methodMeta.setParamMap(parseParameters(method));
+        var paramTuple = parseParams(method);
+        methodMeta.setVisitorIndex(paramTuple.e1());
+        methodMeta.setParamMap(paramTuple.e2());
         // 解析结果映射
-        methodMeta.setResultMap(parseResultType(method.getReturnType()));
+        methodMeta.setResultMap(parseResultType(sqlAnnotation.resultType()));
         return methodMeta;
     }
 
-    private static Map<Integer, TypeHandler> parseParameters(Method method) {
+    private static Tuple<Integer, Map<Integer, TypeHandler>> parseParams(Method method) {
         Map<Integer, TypeHandler> paramMap = new HashMap<>();
         Parameter[] parameters = method.getParameters();
+        int index = 1; // SQL 参数从 1 开始
+        int visitorIndex = -1;
         for (int i = 0; i < parameters.length; i++) {
+            // todo 排除掉visitor类，但是不便拓展，这段代码要改
+            if (SelectVisitor.class.isAssignableFrom(parameters[i].getType())) {
+                visitorIndex = i;
+                continue;
+            }
             Param paramAnnotation = parameters[i].getAnnotation(Param.class);
             if (paramAnnotation != null) {
                 try {
-                    TypeHandler handler = paramAnnotation.typeHandler().newInstance();
-                    paramMap.put(i + 1, handler); // SQL 参数从 1 开始
+                    TypeHandler handler = SingletonFactory.getInstance(paramAnnotation.typeHandler());
+                    paramMap.put(index, handler);
+                    index += 1;
                 } catch (Exception e) {
                     throw new RuntimeException("Failed to instantiate TypeHandler", e);
                 }
             }
         }
-        return paramMap;
+        return new Tuple<>(visitorIndex, paramMap);
     }
 
     private static Map<String, TypeHandler> parseResultType(Class<?> returnType) {

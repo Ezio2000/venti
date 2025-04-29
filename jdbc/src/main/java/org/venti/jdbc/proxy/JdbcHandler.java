@@ -7,9 +7,11 @@ import org.venti.jdbc.api.Jdbc;
 import org.venti.jdbc.meta.BoundSql;
 import org.venti.jdbc.meta.MetaManager;
 import org.venti.jdbc.typehandler.TypeHandler;
+import org.venti.jdbc.visitor.SelectVisitor;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 public class JdbcHandler implements InvocationHandler {
@@ -22,25 +24,35 @@ public class JdbcHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        var metaId = proxy.getClass().toGenericString();
+        var metaId = method.getDeclaringClass().toGenericString();
         var methodMetaId = method.toGenericString();
         var methodMeta = SingletonFactory.getInstance(MetaManager.class)
                 .getMeta(metaId)
                 .getMethodMeta(methodMetaId);
+        var realParamMap = new HashMap<Integer, Tuple<Object, TypeHandler>>();
+        for (var entry : methodMeta.getParamMap().entrySet()) {
+            // todo 所以必须一一对应, SELECT的话要放在最后
+            realParamMap.put(entry.getKey(), new Tuple<>(args[entry.getKey() - 1], entry.getValue()));
+        }
+        // todo 是不是应该把更多东西收纳到boundSql?
+        var boundSql = BoundSql.builder()
+                .sql(methodMeta.getSql())
+                .paramMap(realParamMap)
+                .resultMap(methodMeta.getResultMap())
+                .build();
         switch (methodMeta.getSqlType()) {
             case SqlType.QUERY -> {
-                var realParamMap = new HashMap<Integer, Tuple<Object, TypeHandler>>();
-                for (var entry : methodMeta.getParamMap().entrySet()) {
-                    realParamMap.put(entry.getKey(), new Tuple<>(args[entry.getKey() - 1], entry.getValue()));
-                }
-                var boundSql = BoundSql.builder()
-                        .sql(methodMeta.getSql())
-                        .paramMap(realParamMap)
-                        .resultMap(methodMeta.getResultMap())
-                        .build();
                 // todo
-//                jdbc.query(boundSql, )
+                if (methodMeta.getVisitorIndex() <= 0) {
+                    throw new SQLException("Visitor index is less than 0.");
+                }
+                return jdbc.query(boundSql, (SelectVisitor) args[methodMeta.getVisitorIndex()]);
             }
+            case SqlType.UPDATE -> {
+                return jdbc.update(boundSql);
+            }
+            case SqlType.FORMULA -> {}
+            default -> {}
         }
         return null;
     }

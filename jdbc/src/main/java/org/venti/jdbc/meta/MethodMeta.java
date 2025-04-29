@@ -15,6 +15,10 @@ public class MethodMeta {
 
     private SqlType sqlType;
 
+    private Class<?> resultType;
+
+    private Integer visitorIndex;
+
     private Map<Integer, TypeHandler> paramMap;
 
     private Map<String, TypeHandler> resultMap;
