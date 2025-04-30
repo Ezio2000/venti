@@ -31,7 +31,11 @@ void main() {
     var insertCount = userMapper.insertUser("ningjun", 112);
     System.out.println(insertCount);
 
-    var updateCount = userMapper.updateUserById("ningjun", 124, 175);
+    userMapper.rollback();
+
+    userMapper.begin();
+
+    var updateCount = userMapper.updateUserById("ningjun", 125, 175);
     System.out.println(updateCount);
 
     userMapper.commit();
