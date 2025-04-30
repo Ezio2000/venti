@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>org.venti</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>jdbc</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <!-- tomcat等网络组件 -->
