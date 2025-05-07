@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.venti.agileform.agile.entity.DTO.CellTemplateDTO;
 import org.venti.agileform.agile.mapper.CellTemplateMapper;
-import org.venti.common.struc.dform.cell.CellType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CellTemplateService {
@@ -13,14 +15,28 @@ public class CellTemplateService {
     private CellTemplateMapper cellTemplateMapper;
 
     public CellTemplateDTO getCellTemplateByName(String name) {
-        var builder = CellTemplateDTO.builder();
-        cellTemplateMapper.getCellTemplateByName(name, map -> {
-            builder.id((Long) map.get("id"));
-            builder.name((String) map.get("name"));
-            builder.type((CellType) map.get("type"));
-            builder.description((String) map.get("description"));
+        var cellTemplateDO = cellTemplateMapper.getCellTemplateByName(name);
+        return CellTemplateDTO.builder()
+                .id(cellTemplateDO.getId())
+                .name(cellTemplateDO.getName())
+                .type(cellTemplateDO.getType())
+                .description(cellTemplateDO.getDescription())
+                .build();
+    }
+
+    public List<CellTemplateDTO> getAllCellTemplates() {
+        var list = new ArrayList<CellTemplateDTO>();
+        var cellTemplateDOList = cellTemplateMapper.getAllCellTemplates();
+        cellTemplateDOList.forEach(cellTemplateDO -> {
+            var cellTemplateDTO = CellTemplateDTO.builder()
+                    .id(cellTemplateDO.getId())
+                    .name(cellTemplateDO.getName())
+                    .type(cellTemplateDO.getType())
+                    .description(cellTemplateDO.getDescription())
+                    .build();
+            list.add(cellTemplateDTO);
         });
-        return builder.build();
+        return list;
     }
 
 }

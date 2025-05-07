@@ -1,10 +1,12 @@
 package org.venti.agileform.agile.entity.DO;
 
+import lombok.Data;
 import org.venti.agileform.typehandler.CellTypeHandler;
 import org.venti.common.struc.dform.cell.CellType;
 import org.venti.jdbc.anno.Entity;
 import org.venti.jdbc.typehandler.LongHandler;
 
+@Data
 @Entity
 public class CellTemplateDO {
 
