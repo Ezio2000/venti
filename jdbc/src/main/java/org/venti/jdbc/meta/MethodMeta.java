@@ -6,6 +6,7 @@ import org.venti.jdbc.anno.SqlType;
 import org.venti.jdbc.plugin.Plugin;
 import org.venti.jdbc.typehandler.TypeHandler;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +26,8 @@ public class MethodMeta {
     private Class<?> resultType;
 
     private Integer visitorIndex;
+
+    private Type returnType;
 
     @Builder.Default
     private List<Plugin> pluginList = new LinkedList<>();

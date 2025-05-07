@@ -9,3 +9,10 @@ spring:
   threads:
     virtual:
       enabled: true
+
+venti:
+  jdbc:
+    data-source:
+      url: jdbc:mysql://172.24.140.164:3306/agile_form
+      user: xnj
+      password: 123456

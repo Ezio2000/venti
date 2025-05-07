@@ -27,10 +27,8 @@ void main() {
 
     UserMapper userMapper = ProxyUtil.createProxy(UserMapper.class, new JdbcHandler(jdbc, UserMapper.class));
 
-    var selectCount = userMapper.selectAllUserByNameAndAge("ningjun", 10,
-            map -> map.forEach((s, o) -> System.out.println(STR."\{s} : \{o}"))
-    );
-    System.out.println(selectCount);
+    var select = userMapper.selectAllUserByNameAndAge("ningjun", 122);
+    System.out.println(select);
 
     var selectCount2 = userMapper.selectUserByCryptName("abcd_encrypt", map -> System.out.println(map.get("id")));
     System.out.println(selectCount2);

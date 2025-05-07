@@ -3,11 +3,13 @@ import org.venti.jdbc.plugin.transaction.TransactionMapper;
 import org.venti.jdbc.typehandler.IntegerHandler;
 import org.venti.jdbc.visitor.SelectVisitor;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper extends TransactionMapper {
 
-    @Sql(value = "select * from user where name = ? and age > ?", sqlType = SqlType.QUERY, resultType = User.class)
-    int selectAllUserByNameAndAge(@Param String name, @Param(typeHandler = IntegerHandler.class) int age, SelectVisitor visitor);
+    @Sql(value = "select * from user where name = ? and age >= ?", sqlType = SqlType.QUERY, resultType = User.class)
+    List<User> selectAllUserByNameAndAge(@Param String name, @Param(typeHandler = IntegerHandler.class) int age);
 
     @Sql(value = "select id from user where cryptName = ?", sqlType = SqlType.QUERY, resultType = User.class)
     int selectUserByCryptName(@Param String cryptName, SelectVisitor visitor);

@@ -64,6 +64,7 @@ public class MetaParser {
                 .sqlType(sqlAnnotation.sqlType())
                 .resultType(sqlAnnotation.resultType())
                 .visitorIndex(paramTuple.e1())
+                .returnType(method.getGenericReturnType())
                 .paramMap(paramTuple.e2())
                 // 解析结果映射
                 .resultMap(parseResultType(sqlAnnotation.resultType()))
@@ -104,7 +105,7 @@ public class MetaParser {
                 Entity.Column columnAnnotation = field.getAnnotation(Entity.Column.class);
                 if (columnAnnotation != null) {
                     try {
-                        TypeHandler handler = columnAnnotation.typeHandler().newInstance();
+                        TypeHandler handler = SingletonFactory.getInstance(columnAnnotation.typeHandler());
                         resultMap.put(columnAnnotation.value(), handler);
                     } catch (Exception e) {
                         throw new RuntimeException("Failed to instantiate TypeHandler", e);

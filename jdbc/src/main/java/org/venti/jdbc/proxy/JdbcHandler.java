@@ -8,11 +8,17 @@ import org.venti.jdbc.meta.BoundSql;
 import org.venti.jdbc.meta.MetaManager;
 import org.venti.jdbc.typehandler.TypeHandler;
 import org.venti.jdbc.visitor.SelectVisitor;
+import org.venti.jdbc.visitor.TransferSelectVisitor;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class JdbcHandler implements InvocationHandler {
 
@@ -45,9 +51,18 @@ public class JdbcHandler implements InvocationHandler {
                 .build();
         switch (methodMeta.getSqlType()) {
             case SqlType.QUERY -> {
-                // todo
                 if (methodMeta.getVisitorIndex() <= 0) {
-                    throw new SQLException("Visitor index is less than 0.");
+                    if (methodMeta.getReturnType() == null) {
+                        throw new SQLException("Visitor index is less than 0 and return type is null.");
+                    }
+                    var list = new ArrayList<>();
+                    jdbc.query(boundSql, new TransferSelectVisitor(methodMeta.getReturnType(), list));
+                    // todo 这个判断不对，要改
+                    if (methodMeta.getReturnType() instanceof ParameterizedType) {
+                        return list;
+                    } else {
+                        return list.getFirst();
+                    }
                 }
                 return jdbc.query(boundSql, (SelectVisitor) args[methodMeta.getVisitorIndex()]);
             }
