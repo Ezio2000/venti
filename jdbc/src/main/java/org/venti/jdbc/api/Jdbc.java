@@ -3,44 +3,15 @@ package org.venti.jdbc.api;
 import org.venti.jdbc.meta.BoundSql;
 import org.venti.jdbc.visitor.SelectVisitor;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
-public class Jdbc {
+public interface Jdbc {
 
-    /**
-     * 数据源
-     */
-    private final DataSource dataSource;
+    Connection getConn() throws SQLException;
 
-    public Jdbc(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+    int query(BoundSql boundSql, SelectVisitor visitor) throws SQLException;
 
-    public int query(BoundSql boundSql, SelectVisitor visitor) throws SQLException {
-        // 使用资源管理器自动关闭连接、语句和结果集
-        try (var conn = dataSource.getConnection()) {
-            var transactionJdbc = new TransactionJdbc(conn);
-            return transactionJdbc.query(boundSql, visitor);
-        }
-    }
-
-    public int update(BoundSql boundSql) throws SQLException {
-        // 使用资源管理器自动关闭连接和语句
-        try (var conn = dataSource.getConnection()) {
-            var transactionJdbc = new TransactionJdbc(conn);
-            return transactionJdbc.update(boundSql);
-        }
-    }
-
-    public TransactionJdbc transaction() throws SQLException {
-        if (Transaction.get() != null) {
-            return Transaction.get();
-        }
-        var conn = dataSource.getConnection();
-        conn.setAutoCommit(false);
-        Transaction.begin(new TransactionJdbc(conn));
-        return Transaction.get();
-    }
+    int update(BoundSql boundSql) throws SQLException;
 
 }

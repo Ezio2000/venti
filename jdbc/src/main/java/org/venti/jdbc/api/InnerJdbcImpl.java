@@ -1,19 +1,15 @@
 package org.venti.jdbc.api;
 
+import lombok.Getter;
 import org.venti.jdbc.meta.BoundSql;
 import org.venti.jdbc.visitor.SelectVisitor;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class TransactionJdbc {
+public record InnerJdbcImpl(@Getter Connection conn) implements Jdbc {
 
-    private final Connection conn;
-
-    public TransactionJdbc(Connection conn) {
-        this.conn = conn;
-    }
-
+    @Override
     public int query(BoundSql boundSql, SelectVisitor visitor) throws SQLException {
         try (var ps = conn.prepareStatement(boundSql.getSql())) {
             boundSql.bind(ps);
@@ -33,6 +29,7 @@ public class TransactionJdbc {
         }
     }
 
+    @Override
     public int update(BoundSql boundSql) throws SQLException {
         try (var ps = conn.prepareStatement(boundSql.getSql())) {
             boundSql.bind(ps);
@@ -41,21 +38,10 @@ public class TransactionJdbc {
         }
     }
 
-    public void commit() throws SQLException {
-        conn.commit();
-        Transaction.commit();
-    }
-
-    public void rollback() throws SQLException {
-        conn.rollback();
-        Transaction.rollback();
-    }
-
     public void close() throws SQLException {
         if (conn != null) {
             conn.close();
         }
-        Transaction.clear();
     }
 
 }

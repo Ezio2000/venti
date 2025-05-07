@@ -3,17 +3,20 @@ package org.venti.jdbc.meta;
 import org.venti.common.struc.tuple.Tuple;
 import org.venti.common.util.SingletonFactory;
 import org.venti.jdbc.anno.*;
+import org.venti.jdbc.plugin.Plugin;
 import org.venti.jdbc.typehandler.TypeHandler;
 import org.venti.jdbc.visitor.SelectVisitor;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MetaParser {
 
-    public static Meta parse(Class<?> clazz) {
+    public static Meta parse(Class<?> clazz, List<Plugin> pluginList) {
         if (!clazz.isInterface()) {
             throw new IllegalArgumentException("Class must be interface");
         }
@@ -29,10 +32,18 @@ public class MetaParser {
                 meta.putMethodMeta(methodMeta.getId(), methodMeta);
             } else {
                 // todo 父类作为插件处理
-                var methodMeta = new MethodMeta();
-                methodMeta.setId(method.toGenericString());
-                methodMeta.setSqlType(SqlType.TRANSACTION);
-                meta.putMethodMeta(methodMeta.getId(), methodMeta);
+                MethodMeta methodMeta = new MethodMeta();
+                for (var plugin : pluginList) {
+                    // 发现mapper=继承的插件类，则加载该插件
+                    if (plugin.mapper() == method.getDeclaringClass()) {
+                        methodMeta = plugin.load(method);
+                        methodMeta.getPluginList().add(plugin);
+                        break;
+                    }
+                }
+                if (methodMeta.getId() != null) {
+                    meta.putMethodMeta(methodMeta.getId(), methodMeta);
+                }
             }
         }
         return meta;
@@ -88,7 +99,7 @@ public class MetaParser {
         Entity entityAnnotation = returnType.getAnnotation(Entity.class);
         if (entityAnnotation != null) {
             // 遍历实体类的字段
-            for (java.lang.reflect.Field field : returnType.getDeclaredFields()) {
+            for (Field field : returnType.getDeclaredFields()) {
                 Entity.Column columnAnnotation = field.getAnnotation(Entity.Column.class);
                 if (columnAnnotation != null) {
                     try {

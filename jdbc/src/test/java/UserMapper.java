@@ -1,5 +1,5 @@
 import org.venti.jdbc.anno.*;
-import org.venti.jdbc.plugin.TransactionMapper;
+import org.venti.jdbc.plugin.transaction.TransactionMapper;
 import org.venti.jdbc.typehandler.IntegerHandler;
 import org.venti.jdbc.visitor.SelectVisitor;
 

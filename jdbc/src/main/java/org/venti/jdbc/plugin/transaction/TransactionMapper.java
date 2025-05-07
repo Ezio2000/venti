@@ -1,4 +1,4 @@
-package org.venti.jdbc.plugin;
+package org.venti.jdbc.plugin.transaction;
 
 public interface TransactionMapper {
 
