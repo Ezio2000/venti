@@ -18,12 +18,13 @@ public class TransactionPlugin implements Plugin {
 
     @Override
     public MethodMeta load(Method method) {
-        var methodMeta = new MethodMeta();
-        methodMeta.setId(method.toGenericString());
-        methodMeta.setSqlType(SqlType.PLUGIN);
-        return methodMeta;
+        return MethodMeta.builder()
+                .id(method.toGenericString())
+                .sqlType(SqlType.PLUGIN)
+                .build();
     }
 
+    @Override
     public Object handle(Method method, Jdbc jdbc, MethodMeta methodMeta, BoundSql boundSql) throws SQLException {
         if (jdbc instanceof TransactionJdbcImpl transactionJdbcImpl) {
             switch (method.getName()) {

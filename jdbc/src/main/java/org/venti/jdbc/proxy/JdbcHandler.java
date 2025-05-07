@@ -55,7 +55,6 @@ public class JdbcHandler implements InvocationHandler {
                 return jdbc.update(boundSql);
             }
             case SqlType.FORMULA -> {}
-            // todo 如何把transaction彻底变成插件形式
             case SqlType.PLUGIN -> {
                 for (var plugin : methodMeta.getPluginList()) {
                     if (method.getDeclaringClass() == plugin.mapper()) {

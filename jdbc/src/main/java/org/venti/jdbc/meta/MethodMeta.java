@@ -1,6 +1,7 @@
 package org.venti.jdbc.meta;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 import org.venti.jdbc.anno.SqlType;
 import org.venti.jdbc.plugin.Plugin;
 import org.venti.jdbc.typehandler.TypeHandler;
@@ -11,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 // todo 改为builder 然后只能get
-@Data
+@Getter
+@Builder
 public class MethodMeta {
 
     private String id;
@@ -24,10 +26,13 @@ public class MethodMeta {
 
     private Integer visitorIndex;
 
+    @Builder.Default
     private List<Plugin> pluginList = new LinkedList<>();
 
+    @Builder.Default
     private Map<Integer, TypeHandler> paramMap = new HashMap<>();
 
+    @Builder.Default
     private Map<String, TypeHandler> resultMap = new HashMap<>();
 
 }

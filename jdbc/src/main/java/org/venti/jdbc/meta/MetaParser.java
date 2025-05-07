@@ -10,6 +10,7 @@ import org.venti.jdbc.visitor.SelectVisitor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class MetaParser {
                 meta.putMethodMeta(methodMeta.getId(), methodMeta);
             } else {
                 // todo 父类作为插件处理
-                MethodMeta methodMeta = new MethodMeta();
+                MethodMeta methodMeta = null;
                 for (var plugin : pluginList) {
                     // 发现mapper=继承的插件类，则加载该插件
                     if (plugin.mapper() == method.getDeclaringClass()) {
@@ -41,7 +42,7 @@ public class MetaParser {
                         break;
                     }
                 }
-                if (methodMeta.getId() != null) {
+                if (methodMeta != null) {
                     meta.putMethodMeta(methodMeta.getId(), methodMeta);
                 }
             }
@@ -50,26 +51,27 @@ public class MetaParser {
     }
 
     public static MethodMeta parseMethod(Method method) {
-        MethodMeta methodMeta = new MethodMeta();
         // 解析 @Sql 注解
         Sql sqlAnnotation = method.getAnnotation(Sql.class);
         if (sqlAnnotation == null) {
             throw new IllegalArgumentException("Method must be annotated with @Sql");
         }
-        methodMeta.setId(method.toGenericString());
-        methodMeta.setSql(sqlAnnotation.value());
-        methodMeta.setSqlType(sqlAnnotation.sqlType());
-        methodMeta.setResultType(sqlAnnotation.resultType());
         // 解析参数映射
         var paramTuple = parseParams(method);
-        methodMeta.setVisitorIndex(paramTuple.e1());
-        methodMeta.setParamMap(paramTuple.e2());
         // 解析结果映射
-        methodMeta.setResultMap(parseResultType(sqlAnnotation.resultType()));
-        return methodMeta;
+        return MethodMeta.builder()
+                .id(method.toGenericString())
+                .sql(sqlAnnotation.value())
+                .sqlType(sqlAnnotation.sqlType())
+                .resultType(sqlAnnotation.resultType())
+                .visitorIndex(paramTuple.e1())
+                .paramMap(paramTuple.e2())
+                // 解析结果映射
+                .resultMap(parseResultType(sqlAnnotation.resultType()))
+                .build();
     }
 
-    private static Tuple<Integer, Map<Integer, TypeHandler>> parseParams(Method method) {
+    public static Tuple<Integer, Map<Integer, TypeHandler>> parseParams(Method method) {
         Map<Integer, TypeHandler> paramMap = new HashMap<>();
         Parameter[] parameters = method.getParameters();
         int index = 1; // SQL 参数从 1 开始
