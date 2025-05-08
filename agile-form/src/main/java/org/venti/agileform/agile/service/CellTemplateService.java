@@ -21,6 +21,9 @@ public class CellTemplateService {
                 .name(cellTemplateDO.getName())
                 .type(cellTemplateDO.getType())
                 .description(cellTemplateDO.getDescription())
+                .creator(cellTemplateDO.getCreator())
+                .createDateTime(cellTemplateDO.getCreateDateTime())
+                .updateDateTime(cellTemplateDO.getUpdateDateTime())
                 .build();
     }
 
@@ -33,6 +36,9 @@ public class CellTemplateService {
                     .name(cellTemplateDO.getName())
                     .type(cellTemplateDO.getType())
                     .description(cellTemplateDO.getDescription())
+                    .creator(cellTemplateDO.getCreator())
+                    .createDateTime(cellTemplateDO.getCreateDateTime())
+                    .updateDateTime(cellTemplateDO.getUpdateDateTime())
                     .build();
             list.add(cellTemplateDTO);
         });

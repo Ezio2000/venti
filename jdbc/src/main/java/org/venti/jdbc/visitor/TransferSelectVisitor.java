@@ -1,5 +1,7 @@
 package org.venti.jdbc.visitor;
 
+import org.venti.jdbc.anno.Entity;
+
 import java.lang.reflect.*;
 import java.util.Collection;
 import java.util.Map;
@@ -28,7 +30,11 @@ public class TransferSelectVisitor implements SelectVisitor {
         for (var field : clazz.getDeclaredFields()) {
             field.setAccessible(true);
             try {
-                field.set(obj, map.get(field.getName()));
+                var key = field.getName();
+                if (field.isAnnotationPresent(Entity.Column.class)) {
+                    key = field.getAnnotation(Entity.Column.class).value();
+                }
+                field.set(obj, map.get(key));
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(STR."clazz \{clazz.getName()} has no access.", e);
             } finally {

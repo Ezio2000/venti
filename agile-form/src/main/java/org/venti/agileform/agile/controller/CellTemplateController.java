@@ -24,6 +24,9 @@ public class CellTemplateController {
                 .name(cellTemplateDTO.getName())
                 .type(cellTemplateDTO.getType())
                 .description(cellTemplateDTO.getDescription())
+                .creator(cellTemplateDTO.getCreator())
+                .createDateTime(cellTemplateDTO.getCreateDateTime())
+                .updateDateTime(cellTemplateDTO.getUpdateDateTime())
                 .build();
     }
 
@@ -37,6 +40,9 @@ public class CellTemplateController {
                     .name(cellTemplateDTO.getName())
                     .type(cellTemplateDTO.getType())
                     .description(cellTemplateDTO.getDescription())
+                    .creator(cellTemplateDTO.getCreator())
+                    .createDateTime(cellTemplateDTO.getCreateDateTime())
+                    .updateDateTime(cellTemplateDTO.getUpdateDateTime())
                     .build();
             list.add(cellTemplateVO);
         });
