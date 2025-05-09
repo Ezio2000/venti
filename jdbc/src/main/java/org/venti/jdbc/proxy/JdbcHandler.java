@@ -6,19 +6,17 @@ import org.venti.jdbc.anno.SqlType;
 import org.venti.jdbc.api.Jdbc;
 import org.venti.jdbc.meta.BoundSql;
 import org.venti.jdbc.meta.MetaManager;
+import org.venti.jdbc.plugin.Plugin;
 import org.venti.jdbc.typehandler.TypeHandler;
 import org.venti.jdbc.visitor.SelectVisitor;
 import org.venti.jdbc.visitor.TransferSelectVisitor;
 
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 public class JdbcHandler implements InvocationHandler {
 
@@ -38,6 +36,12 @@ public class JdbcHandler implements InvocationHandler {
         var methodMeta = SingletonFactory.getInstance(MetaManager.class)
                 .getMeta(metaId)
                 .getMethodMeta(methodMetaId);
+        Plugin plugin = null;
+        for (var metaPlugin : methodMeta.getPluginList()) {
+            if (method.getDeclaringClass() == metaPlugin.mapper()) {
+                plugin = metaPlugin;
+            }
+        }
         var realParamMap = new HashMap<Integer, Tuple<Object, TypeHandler>>();
         for (var entry : methodMeta.getParamMap().entrySet()) {
             // todo 所以必须一一对应, SELECT的话要放在最后
@@ -71,10 +75,8 @@ public class JdbcHandler implements InvocationHandler {
             }
             case SqlType.FORMULA -> {}
             case SqlType.PLUGIN -> {
-                for (var plugin : methodMeta.getPluginList()) {
-                    if (method.getDeclaringClass() == plugin.mapper()) {
-                        return plugin.handle(method, jdbc, methodMeta, boundSql);
-                    }
+                if (plugin != null) {
+                    return plugin.handle(method, jdbc, methodMeta, boundSql);
                 }
             }
             default -> {}

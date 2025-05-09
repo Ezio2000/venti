@@ -1,5 +1,6 @@
 package org.venti.jdbc.visitor;
 
+import org.venti.common.util.ReflectUtil;
 import org.venti.jdbc.anno.Entity;
 
 import java.lang.reflect.*;
@@ -27,7 +28,7 @@ public class TransferSelectVisitor implements SelectVisitor {
             throw new RuntimeException(STR."clazz \{clazz.getName()} can not be instantiated.", e);
         }
         // todo 要看看代码里所有的getField()用得对不对
-        for (var field : clazz.getDeclaredFields()) {
+        for (var field : ReflectUtil.getFieldList(clazz)) {
             field.setAccessible(true);
             try {
                 var key = field.getName();
