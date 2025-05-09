@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 /**
  * 用于处理 LocalDateTime 类型的 TypeHandler
  */
-public class DatetimeHandler extends BaseTypeHandler<LocalDateTime> {
+public class DateTimeHandler extends BaseTypeHandler<LocalDateTime> {
 
     @Override
     protected void setNonNullParam(PreparedStatement ps, int paramIndex, LocalDateTime param) throws SQLException {

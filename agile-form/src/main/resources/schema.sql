@@ -1,93 +1,24 @@
--- Form Template Table
-CREATE TABLE form_template (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    description VARCHAR(1000),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+CREATE TABLE guarantee (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    guarantee_number VARCHAR(50) NOT NULL COMMENT '保函编号，唯一标识',
+    beneficiary VARCHAR(100) NOT NULL COMMENT '受益人',
+    guaranteed_party VARCHAR(100) NOT NULL COMMENT '被担保人',
+    project_name VARCHAR(200) NOT NULL COMMENT '项目名称',
+    guarantee_amount DECIMAL(15,2) NOT NULL COMMENT '担保金额',
+    guarantee_deadline DATETIME NOT NULL COMMENT '担保截止日期',
+    guarantor VARCHAR(100) NOT NULL COMMENT '担保人',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_guarantee_number (guarantee_number) COMMENT '保函编号唯一索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='保函信息表';
 
--- Sheet Template Table
-CREATE TABLE sheet_template (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    description VARCHAR(1000),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Cell Template Table
-CREATE TABLE cell_template (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    type VARCHAR(50) NOT NULL,
-    description VARCHAR(1000),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Form-Sheet Relationship Table (Many-to-Many with quantity)
-CREATE TABLE form_sheet_rel (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    form_template_name VARCHAR(255) NOT NULL,
-    sheet_template_name VARCHAR(255) NOT NULL,
-    quantity INT NOT NULL DEFAULT 1,
-    position INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (form_template_name) REFERENCES form_template(name) ON DELETE CASCADE,
-    FOREIGN KEY (sheet_template_name) REFERENCES sheet_template(name) ON DELETE CASCADE,
-    UNIQUE KEY (form_template_name, sheet_template_name, position)
-);
-
--- Sheet-Cell Relationship Table (Many-to-Many with quantity)
-CREATE TABLE sheet_cell_rel (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    sheet_template_name VARCHAR(255) NOT NULL,
-    cell_template_name VARCHAR(255) NOT NULL,
-    quantity INT NOT NULL DEFAULT 1,
-    position INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (sheet_template_name) REFERENCES sheet_template(name) ON DELETE CASCADE,
-    FOREIGN KEY (cell_template_name) REFERENCES cell_template(name) ON DELETE CASCADE,
-    UNIQUE KEY (sheet_template_name, cell_template_name, position)
-);
-
--- Form Data Table
-CREATE TABLE form_data (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    form_template_name VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (form_template_name) REFERENCES form_template(name) ON DELETE CASCADE,
-    UNIQUE KEY (form_template_name, name)
-);
-
--- Sheet Data Table
-CREATE TABLE sheet_data (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    form_data_id INT NOT NULL,
-    sheet_template_name VARCHAR(255) NOT NULL,
-    position INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (form_data_id) REFERENCES form_data(id) ON DELETE CASCADE,
-    FOREIGN KEY (sheet_template_name) REFERENCES sheet_template(name) ON DELETE CASCADE,
-    UNIQUE KEY (form_data_id, sheet_template_name, position)
-);
-
--- Cell Data Table
-CREATE TABLE cell_data (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    sheet_data_id INT NOT NULL,
-    cell_template_name VARCHAR(255) NOT NULL,
-    position INT NOT NULL,
-    data TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (sheet_data_id) REFERENCES sheet_data(id) ON DELETE CASCADE,
-    FOREIGN KEY (cell_template_name) REFERENCES cell_template(name) ON DELETE CASCADE,
-    UNIQUE KEY (sheet_data_id, cell_template_name, position)
-);
+CREATE TABLE guarantee_verification (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    guarantee_number VARCHAR(50) NOT NULL COMMENT '保函编号',
+    security_code VARCHAR(70) NOT NULL COMMENT '防伪码',
+    status TINYINT(1) DEFAULT 1 NOT NULL COMMENT '状态：1-有效，0-无效',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_security_code (security_code) COMMENT '防伪码唯一索引',
+    UNIQUE KEY uk_guarantee_number (guarantee_number) COMMENT '保函编号索引'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='保函查询验证表';

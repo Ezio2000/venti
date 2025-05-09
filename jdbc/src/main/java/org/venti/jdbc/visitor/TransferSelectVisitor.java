@@ -28,6 +28,7 @@ public class TransferSelectVisitor implements SelectVisitor {
             throw new RuntimeException(STR."clazz \{clazz.getName()} can not be instantiated.", e);
         }
         // todo 要看看代码里所有的getField()用得对不对
+        // 获取子类和父类中的所有变量
         for (var field : ReflectUtil.getFieldList(clazz)) {
             field.setAccessible(true);
             try {
