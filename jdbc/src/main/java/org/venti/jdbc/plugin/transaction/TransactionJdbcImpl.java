@@ -8,6 +8,7 @@ import org.venti.jdbc.visitor.SelectVisitor;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+// todo 现在是外部管理Transaction线程变量，看看怎么改成内部管理
 public class TransactionJdbcImpl implements Jdbc {
 
     private final Jdbc jdbc;

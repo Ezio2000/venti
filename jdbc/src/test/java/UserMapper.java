@@ -5,7 +5,7 @@ import org.venti.jdbc.visitor.SelectVisitor;
 
 import java.util.List;
 
-@Mapper
+@VentiMapper
 public interface UserMapper extends TransactionMapper {
 
     @Sql(value = "select * from user where name = ? and age >= ?", sqlType = SqlType.QUERY, resultType = User.class)

@@ -7,7 +7,7 @@ import org.venti.jdbc.visitor.SelectVisitor;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public record InnerJdbcImpl(@Getter Connection conn) implements Jdbc {
+public record InnerJdbcImpl(@Getter Connection conn) implements Jdbc, AutoCloseable {
 
     @Override
     public int query(BoundSql boundSql, SelectVisitor visitor) throws SQLException {
@@ -38,6 +38,7 @@ public record InnerJdbcImpl(@Getter Connection conn) implements Jdbc {
         }
     }
 
+    @Override
     public void close() throws SQLException {
         if (conn != null) {
             conn.close();

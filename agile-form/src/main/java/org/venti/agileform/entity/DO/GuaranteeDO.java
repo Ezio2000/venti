@@ -1,19 +1,15 @@
-package org.venti.agileform.agile.entity.DO;
+package org.venti.agileform.entity.DO;
 
-import lombok.Data;
+import lombok.Getter;
 import org.venti.jdbc.anno.Entity;
 import org.venti.jdbc.typehandler.DateTimeHandler;
 import org.venti.jdbc.typehandler.DoubleHandler;
-import org.venti.jdbc.typehandler.LongHandler;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
-public class GuaranteeDO {
-
-    @Entity.Column(value = "id", typeHandler = LongHandler.class)
-    private long id;
+@Getter
+public class GuaranteeDO extends BaseDO {
 
     @Entity.Column("guarantee_number")
     private String guaranteeNumber;
@@ -35,11 +31,5 @@ public class GuaranteeDO {
 
     @Entity.Column("guarantor")
     private String guarantor;
-
-    @Entity.Column(value = "create_time", typeHandler = DateTimeHandler.class)
-    private LocalDateTime createTime;
-
-    @Entity.Column(value = "update_time", typeHandler = DateTimeHandler.class)
-    private LocalDateTime updateTime;
 
 }

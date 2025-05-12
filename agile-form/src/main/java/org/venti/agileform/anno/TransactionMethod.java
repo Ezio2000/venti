@@ -1,12 +1,14 @@
-package org.venti.jdbc.anno;
+package org.venti.agileform.anno;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Mapper {
+public @interface TransactionMethod {
+
+    Class<? extends Throwable>[] value() default {Throwable.class};
 
 }

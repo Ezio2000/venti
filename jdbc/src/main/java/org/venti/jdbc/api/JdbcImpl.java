@@ -22,8 +22,8 @@ public record JdbcImpl(@Getter DataSource dataSource) implements Jdbc {
     public int query(BoundSql boundSql, SelectVisitor visitor) throws SQLException {
         // 使用资源管理器自动关闭连接、语句和结果集
         try (var conn = dataSource.getConnection()) {
-            var transactionJdbc = new InnerJdbcImpl(conn);
-            return transactionJdbc.query(boundSql, visitor);
+            var innerJdbc = new InnerJdbcImpl(conn);
+            return innerJdbc.query(boundSql, visitor);
         }
     }
 
@@ -31,8 +31,8 @@ public record JdbcImpl(@Getter DataSource dataSource) implements Jdbc {
     public int update(BoundSql boundSql) throws SQLException {
         // 使用资源管理器自动关闭连接和语句
         try (var conn = dataSource.getConnection()) {
-            var transactionJdbc = new InnerJdbcImpl(conn);
-            return transactionJdbc.update(boundSql);
+            var innerJdbc = new InnerJdbcImpl(conn);
+            return innerJdbc.update(boundSql);
         }
     }
 

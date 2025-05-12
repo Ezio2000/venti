@@ -1,6 +1,7 @@
 package org.venti.jdbc.meta;
 
 import org.venti.common.struc.tuple.Tuple;
+import org.venti.common.util.ReflectUtil;
 import org.venti.common.util.SingletonFactory;
 import org.venti.jdbc.anno.*;
 import org.venti.jdbc.plugin.Plugin;
@@ -20,7 +21,7 @@ public class MetaParser {
         if (!clazz.isInterface()) {
             throw new IllegalArgumentException("Class must be interface");
         }
-        if (!clazz.isAnnotationPresent(Mapper.class)) {
+        if (!clazz.isAnnotationPresent(VentiMapper.class)) {
             throw new IllegalArgumentException("Class must be annotated with @Mapper");
         }
         Meta meta = new Meta();
@@ -101,7 +102,7 @@ public class MetaParser {
         Entity entityAnnotation = returnType.getAnnotation(Entity.class);
         if (entityAnnotation != null) {
             // 遍历实体类的字段
-            for (Field field : returnType.getDeclaredFields()) {
+            for (Field field : ReflectUtil.getFieldList(returnType)) {
                 Entity.Column columnAnnotation = field.getAnnotation(Entity.Column.class);
                 if (columnAnnotation != null) {
                     try {
