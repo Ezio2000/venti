@@ -29,6 +29,6 @@ public class GuaranteeController {
     public ResponseEntity<GetGuaranteeVO> getGuarantee(@RequestBody GetGuaranteeRO ro) {
         var vo = guaranteeService.getGuarantee(ro);
         return ResponseEntity.ok(vo);
-    };
+    }
 
 }
