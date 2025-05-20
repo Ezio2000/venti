@@ -13,7 +13,7 @@ spring:
 venti:
   jdbc:
     data-source:
-#      url: jdbc:mysql://172.24.140.16:3306/agile_form
-      url: jdbc:mysql://localhost:3306/agile_form
+      url: jdbc:mysql://172.24.140.164:3306/guarantee
+#      url: jdbc:mysql://localhost:3306/guarantee
       user: xnj
       password: 123456
