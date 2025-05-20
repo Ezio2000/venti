@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>保函服务</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --main-orange: #ff7f27;
+            --hover-orange: #e66f20;
+            --bg-gradient: linear-gradient(-45deg, #ffe0cc, #fff5e6, #fff, #ffe9cc);
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: bgMove 10s ease infinite;
+            color: #333;
+        }
+
+        @keyframes bgMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        header {
+            background: var(--main-orange);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            box-shadow: 0 0 20px rgba(255, 128, 0, 0.6);
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 5px white, 0 0 10px var(--main-orange); }
+            100% { text-shadow: 0 0 15px white, 0 0 25px var(--main-orange); }
+        }
+
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            animation: fadeIn 1.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #fffdfb;
+            box-shadow: 0 5px 20px rgba(255, 192, 128, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 192, 128, 0.3);
+        }
+
+        h2 {
+            color: var(--main-orange);
+            font-size: 1.8rem;
+            margin-top: 0;
+            border-left: 5px solid var(--main-orange);
+            padding-left: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--main-orange);
+            box-shadow: 0 0 8px rgba(255, 128, 0, 0.5);
+        }
+
+        button {
+            background-color: var(--main-orange);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background-color: var(--hover-orange);
+            transform: scale(1.03);
+            box-shadow: 0 0 10px rgba(255, 128, 0, 0.4);
+        }
+
+        button::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            border-radius: 50%;
+            transition: transform 0.5s;
+        }
+
+        button:active::after {
+            transform: scale(2);
+            transition: 0s;
+        }
+
+        pre {
+            background: #fff5e6;
+            padding: 15px;
+            border: 2px dashed var(--main-orange);
+            border-radius: 10px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 1rem;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @media (max-width: 600px) {
+            header { font-size: 1.5rem; }
+            main { padding: 20px; }
+            h2 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+<header>Guarantee Service 保函服务</header>
+
+<main>
+    <section>
+        <h2>➕ 新增保函</h2>
+        <form id="addForm">
+            <label>受益人:</label>
+            <input type="text" name="beneficiary" required>
+
+            <label>被担保人:</label>
+            <input type="text" name="guaranteedParty" required>
+
+            <label>项目名称:</label>
+            <input type="text" name="projectName" required>
+
+            <label>保函金额:</label>
+            <input type="number" name="guaranteeAmount" step="0.01" required>
+
+            <label>截止时间:</label>
+            <input type="datetime-local" name="guaranteeDeadline" required>
+
+            <label>担保人:</label>
+            <input type="text" name="guarantor" required>
+
+            <button type="submit">✨ 提交保函</button>
+        </form>
+        <pre id="addResult"></pre>
+    </section>
+
+    <section>
+        <h2>🔍 查询保函</h2>
+        <form id="getForm">
+            <label>保函编号:</label>
+            <input type="text" name="guaranteeNumber" required>
+
+            <label>安全码:</label>
+            <input type="text" name="securityCode" required>
+
+            <button type="submit">🔎 查询保函</button>
+        </form>
+        <pre id="getResult"></pre>
+    </section>
+</main>
+
+<script>
+    document.getElementById('addForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const guarantee = {
+        beneficiary: formData.get('beneficiary'),
+        guaranteedParty: formData.get('guaranteedParty'),
+        projectName: formData.get('projectName'),
+        guaranteeAmount: parseFloat(formData.get('guaranteeAmount')),
+        guaranteeDeadline: formData.get('guaranteeDeadline'),
+        guarantor: formData.get('guarantor')
+      };
+      fetch('/guarantee/v1/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guarantee })
+      }).then(resp => resp.json())
+        .then(json => {
+          document.getElementById('addResult').textContent =
+            "✅ 保函编号: " + json.guaranteeNumber + "\n" +
+            "🔒 安全码: " + json.securityCode;
+        }).catch(err => {
+          document.getElementById('addResult').textContent = '❌ 错误: ' + err;
+        });
+    });
+
+    document.getElementById('getForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = {
+        guaranteeNumber: formData.get('guaranteeNumber'),
+        securityCode: formData.get('securityCode')
+      };
+      fetch('/guarantee/v1/get', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(resp => resp.json())
+        .then(json => {
+          const g = json.guarantee;
+          const v = json.guaranteeVerification;
+          const validText = v.status === 'VALID' ? '✔ 有效' : '✘ 无效';
+          document.getElementById('getResult').textContent =
+            `📌 受益人: ${g.beneficiary}\n` +
+            `📌 被担保人: ${g.guaranteedParty}\n` +
+            `📌 项目名称: ${g.projectName}\n` +
+            `📌 保函金额: ${g.guaranteeAmount}\n` +
+            `📌 截止时间: ${g.guaranteeDeadline}\n` +
+            `📌 担保人: ${g.guarantor}\n\n` +
+            `🔍 验证状态: ${validText}（安全码: ${v.securityCode}）`;
+        }).catch(err => {
+          document.getElementById('getResult').textContent = '❌ 错误: ' + err;
+        });
+    });
+</script>
+</body>
+</html>
