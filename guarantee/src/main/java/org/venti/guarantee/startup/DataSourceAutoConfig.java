@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 @Data
 @Configuration
@@ -22,11 +23,12 @@ public class DataSourceAutoConfig {
     private String password;
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource() throws SQLException {
         var dataSource = new MysqlDataSource();
         dataSource.setUrl(url);
         dataSource.setUser(user);
         dataSource.setPassword(password);
+        dataSource.setConnectTimeout(1000);
         return dataSource;
     }
 
