@@ -246,7 +246,7 @@
                     `📌 担保人: ${g.guarantor}\n\n` +
                     `🔍 验证状态: ${validText}（安全码: ${v.securityCode}）`;
             }).catch(err => {
-                document.getElementById('getResult').textContent = '❌ 错误: ' + err;
+                document.getElementById('getResult').textContent = '❌ 保函不存在';
             });
     });
 </script>
