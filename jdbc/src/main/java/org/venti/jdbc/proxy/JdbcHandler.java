@@ -65,7 +65,11 @@ public class JdbcHandler implements InvocationHandler {
                     if (methodMeta.getReturnType() instanceof ParameterizedType) {
                         return list;
                     } else {
-                        return list.getFirst();
+                        if (!list.isEmpty()) {
+                            return list.getFirst();
+                        } else {
+                            return null;
+                        }
                     }
                 }
                 return jdbc.query(boundSql, (SelectVisitor) args[methodMeta.getVisitorIndex()]);
