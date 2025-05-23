@@ -12,6 +12,8 @@ import org.venti.guarantee.entity.VO.AddGuaranteeVO;
 import org.venti.guarantee.entity.VO.GetGuaranteeVO;
 import org.venti.guarantee.service.GuaranteeService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/guarantee/v1")
 public class GuaranteeController {
@@ -29,6 +31,12 @@ public class GuaranteeController {
     public ResponseEntity<GetGuaranteeVO> getGuarantee(@RequestBody GetGuaranteeRO ro) {
         var vo = guaranteeService.getGuarantee(ro);
         return ResponseEntity.ok(vo);
+    }
+
+    @PostMapping("/all")
+    public ResponseEntity<List<GetGuaranteeVO>> getAllGuarantees() {
+        var voList = guaranteeService.getAllGuarantees();
+        return ResponseEntity.ok(voList);
     }
 
 }

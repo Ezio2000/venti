@@ -10,6 +10,7 @@ import org.venti.jdbc.typehandler.DateTimeHandler;
 import org.venti.jdbc.typehandler.DoubleHandler;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @VentiMapper
 public interface GuaranteeMapper extends TransactionMapper {
@@ -30,5 +31,8 @@ public interface GuaranteeMapper extends TransactionMapper {
             @Param(typeHandler = DateTimeHandler.class) LocalDateTime guaranteeDeadline,
             @Param String guarantor
     );
+
+    @Sql(value = "SELECT * FROM guarantee;", sqlType = SqlType.QUERY, resultType = GuaranteeDO.class)
+    List<GuaranteeDO> getAllGuarantees();
 
 }

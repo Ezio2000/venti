@@ -2,13 +2,15 @@ package org.venti.guarantee.entity.VO;
 
 import lombok.Builder;
 import lombok.Data;
+import org.venti.guarantee.entity.BO.Guarantee;
+import org.venti.guarantee.entity.BO.GuaranteeVerification;
 
 @Data
 @Builder
 public class AddGuaranteeVO {
 
-    private String guaranteeNumber;
+    private Guarantee guarantee;
 
-    private String securityCode;
+    private GuaranteeVerification guaranteeVerification;
 
 }
