@@ -5,7 +5,7 @@ import org.venti.guarantee.entity.BO.Guarantee;
 import org.venti.guarantee.entity.BO.GuaranteeVerification;
 
 @Data
-public class AddGuaranteeRO {
+public class UpdateGuaranteeRO {
 
     private GuaranteeVerification guaranteeVerification;
 
