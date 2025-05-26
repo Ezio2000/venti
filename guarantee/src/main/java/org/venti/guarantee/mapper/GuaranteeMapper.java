@@ -15,11 +15,14 @@ import java.util.List;
 @VentiMapper
 public interface GuaranteeMapper extends TransactionMapper {
 
-    @Sql(value = "SELECT * FROM guarantee WHERE guarantee_number = ? limit 1;", sqlType = SqlType.QUERY, resultType = GuaranteeDO.class)
-    GuaranteeDO getGuaranteeByNumber(@Param String guaranteeNumber);
-
     @Sql("INSERT INTO guarantee " +
-            "(guarantee_number, beneficiary, guaranteed_party, project_name, guarantee_amount, guarantee_deadline, guarantor) " +
+            "(guarantee_number, " +
+            "beneficiary, " +
+            "guaranteed_party, " +
+            "project_name, " +
+            "guarantee_amount, " +
+            "guarantee_deadline, " +
+            "guarantor) " +
             "VALUES " +
             "(?, ?, ?, ?, ?, ?, ?);")
     int addGuarantee(
@@ -31,6 +34,31 @@ public interface GuaranteeMapper extends TransactionMapper {
             @Param(typeHandler = DateTimeHandler.class) LocalDateTime guaranteeDeadline,
             @Param String guarantor
     );
+
+    @Sql("DELETE FROM guarantee WHERE guarantee_number = ?;")
+    int deleteGuaranteeByNumber(@Param String guaranteeNumber);
+
+    @Sql("UPDATE guarantee SET " +
+            "guarantee_number = guarantee_number, " +
+            "beneficiary = ?, " +
+            "guaranteed_party = ?, " +
+            "project_name = ?, " +
+            "guarantee_amount = ?, " +
+            "guarantee_deadline = ?, " +
+            "guarantor = ? " +
+            "WHERE guarantee_number = ?")
+    int updateGuarantee(
+            @Param String beneficiary,
+            @Param String guaranteedParty,
+            @Param String projectName,
+            @Param(typeHandler = DoubleHandler.class) double guaranteeAmount,
+            @Param(typeHandler = DateTimeHandler.class) LocalDateTime guaranteeDeadline,
+            @Param String guarantor,
+            @Param String guaranteeNumber
+    );
+
+    @Sql(value = "SELECT * FROM guarantee WHERE guarantee_number = ? limit 1;", sqlType = SqlType.QUERY, resultType = GuaranteeDO.class)
+    GuaranteeDO getGuaranteeByNumber(@Param String guaranteeNumber);
 
     @Sql(value = "SELECT * FROM guarantee;", sqlType = SqlType.QUERY, resultType = GuaranteeDO.class)
     List<GuaranteeDO> getAllGuarantees();

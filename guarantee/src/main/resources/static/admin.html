@@ -209,6 +209,38 @@
         font-size: 14px;
       }
     }
+    /* 保持原有样式不变，新增以下样式 */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-edit {
+      background-color: #f39c12;
+    }
+    .btn-edit:hover {
+      background-color: #e67e22;
+    }
+    .btn-delete {
+      background-color: #e74c3c;
+    }
+    .btn-delete:hover {
+      background-color: #c0392b;
+    }
+    .btn-submit {
+      background-color: #2ecc71;
+    }
+    .btn-submit:hover {
+      background-color: #27ae60;
+    }
+    .editable {
+      background-color: #fffde7;
+    }
+    .editable input, .editable select {
+      background-color: white;
+      border: 1px solid #ddd;
+      padding: 8px;
+      width: calc(100% - 16px);
+    }
   </style>
 </head>
 <body>
@@ -346,11 +378,12 @@
             <th>项目名称</th>
             <th>金额(元)</th>
             <th>有效期</th>
+            <th>操作</th>
           </tr>
           </thead>
           <tbody id="guaranteesTableBody">
           <tr>
-            <td colspan="8">点击"刷新列表"加载保函信息</td>
+            <td colspan="9">点击"刷新列表"加载保函信息</td>
           </tr>
           </tbody>
         </table>
@@ -598,6 +631,196 @@
       .catch(error => {
           document.getElementById('guaranteesTableBody').innerHTML =
               `<tr><td colspan="8">数据加载失败: ${error.message}</td></tr>`;
+      });
+  }
+  // 保持原有JavaScript代码不变，新增以下函数
+  function createEditableField(value, name) {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = value;
+      input.name = name;
+      return input;
+  }
+
+  function createEditableDateField(value, name) {
+      const input = document.createElement('input');
+      input.type = 'datetime-local';
+      input.value = value ? new Date(value).toISOString().slice(0, 16) : '';
+      input.name = name;
+      return input;
+  }
+
+  function createEditableNumberField(value, name) {
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.step = '0.01';
+      input.value = value;
+      input.name = name;
+      return input;
+  }
+
+  function enableRowEdit(row, guarantee) {
+      row.classList.add('editable');
+
+      // 保存原始数据
+      row.dataset.originalData = JSON.stringify(guarantee);
+
+      // 创建可编辑字段
+      const cells = row.cells;
+      cells[2].innerHTML = '';
+      cells[2].appendChild(createEditableField(guarantee.guarantee.beneficiary, 'beneficiary'));
+
+      cells[3].innerHTML = '';
+      cells[3].appendChild(createEditableField(guarantee.guarantee.guaranteedParty, 'guaranteedParty'));
+
+      cells[4].innerHTML = '';
+      cells[4].appendChild(createEditableField(guarantee.guarantee.guarantor, 'guarantor'));
+
+      cells[5].innerHTML = '';
+      cells[5].appendChild(createEditableField(guarantee.guarantee.projectName, 'projectName'));
+
+      cells[6].innerHTML = '';
+      cells[6].appendChild(createEditableNumberField(guarantee.guarantee.guaranteeAmount, 'guaranteeAmount'));
+
+      cells[7].innerHTML = '';
+      cells[7].appendChild(createEditableDateField(guarantee.guarantee.guaranteeDeadline, 'guaranteeDeadline'));
+
+      // 修改操作按钮
+      const actionCell = cells[8];
+      actionCell.innerHTML = '';
+
+      const submitBtn = document.createElement('button');
+      submitBtn.className = 'btn-submit';
+      submitBtn.textContent = '提交';
+      submitBtn.onclick = () => submitRowEdit(row, guarantee);
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'btn-delete';
+      cancelBtn.textContent = '取消';
+      cancelBtn.onclick = () => cancelRowEdit(row);
+
+      actionCell.appendChild(submitBtn);
+      actionCell.appendChild(cancelBtn);
+  }
+
+  function cancelRowEdit(row) {
+      const originalData = JSON.parse(row.dataset.originalData);
+      renderGuaranteeRow(row, originalData);
+  }
+
+  function submitRowEdit(row, originalGuarantee) {
+      const updatedGuarantee = {
+          guaranteeVerification: {
+              guaranteeNumber: originalGuarantee.guaranteeVerification.guaranteeNumber,
+              securityCode: originalGuarantee.guaranteeVerification.securityCode
+          },
+          guarantee: {
+              beneficiary: row.cells[2].querySelector('input').value,
+              guaranteedParty: row.cells[3].querySelector('input').value,
+              guarantor: row.cells[4].querySelector('input').value,
+              projectName: row.cells[5].querySelector('input').value,
+              guaranteeAmount: parseFloat(row.cells[6].querySelector('input').value),
+              guaranteeDeadline: row.cells[7].querySelector('input').value
+          }
+      };
+
+      fetch('/guarantee/v1/update', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedGuarantee)
+      })
+      .then(response => response.json())
+      .then(data => {
+          alert('保函更新成功！');
+          getAllGuarantees();
+      })
+      .catch(error => {
+          alert('保函更新失败: ' + error.message);
+          getAllGuarantees();
+      });
+  }
+
+  function deleteGuarantee(guaranteeNumber, securityCode) {
+      if (!confirm('确定要删除此保函吗？')) return;
+
+      fetch('/guarantee/v1/delete', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              guaranteeNumber: guaranteeNumber,
+              securityCode: securityCode
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.ok == true) {
+              alert('保函删除成功！');
+              getAllGuarantees();
+          } else {
+              alert('保函删除失败！');
+          }
+      })
+      .catch(error => {
+          alert('保函删除失败: ' + error.message);
+      });
+  }
+
+  function renderGuaranteeRow(row, guarantee) {
+      row.innerHTML = `
+          <td>${guarantee.guaranteeVerification ? guarantee.guaranteeVerification.guaranteeNumber : '未提供'}</td>
+          <td>${guarantee.guaranteeVerification ? guarantee.guaranteeVerification.securityCode : '未提供'}</td>
+          <td>${guarantee.guarantee.beneficiary}</td>
+          <td>${guarantee.guarantee.guaranteedParty}</td>
+          <td>${guarantee.guarantee.guarantor}</td>
+          <td>${guarantee.guarantee.projectName}</td>
+          <td>${formatCurrency(guarantee.guarantee.guaranteeAmount)}</td>
+          <td>${formatDateTime(guarantee.guarantee.guaranteeDeadline)}</td>
+          <td class="action-buttons">
+              <button class="btn-edit" onclick="enableRowEdit(this.parentNode.parentNode, ${escapeHtml(JSON.stringify(guarantee))})">编辑</button>
+              <button class="btn-delete" onclick="deleteGuarantee('${guarantee.guaranteeVerification.guaranteeNumber}', '${guarantee.guaranteeVerification.securityCode}')">删除</button>
+          </td>
+      `;
+  }
+
+  function escapeHtml(unsafe) {
+      return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+  }
+
+  function getAllGuarantees() {
+      fetch('/guarantee/v1/all', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          }
+      })
+      .then(response => response.json())
+      .then(data => {
+          const tableBody = document.getElementById('guaranteesTableBody');
+          tableBody.innerHTML = '';
+
+          if (data.length === 0) {
+              tableBody.innerHTML = '<tr><td colspan="9">暂无保函数据</td></tr>';
+              return;
+          }
+
+          data.forEach(guarantee => {
+              const row = document.createElement('tr');
+              renderGuaranteeRow(row, guarantee);
+              tableBody.appendChild(row);
+          });
+      })
+      .catch(error => {
+          document.getElementById('guaranteesTableBody').innerHTML =
+              `<tr><td colspan="9">数据加载失败: ${error.message}</td></tr>`;
       });
   }
 </script>

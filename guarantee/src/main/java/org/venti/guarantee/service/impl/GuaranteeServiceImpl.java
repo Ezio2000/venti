@@ -9,9 +9,13 @@ import org.venti.guarantee.entity.BO.GuaranteeVerification;
 import org.venti.guarantee.entity.DO.GuaranteeDO;
 import org.venti.guarantee.entity.DO.GuaranteeVerificationDO;
 import org.venti.guarantee.entity.RO.AddGuaranteeRO;
+import org.venti.guarantee.entity.RO.DeleteGuaranteeRO;
 import org.venti.guarantee.entity.RO.GetGuaranteeRO;
+import org.venti.guarantee.entity.RO.UpdateGuaranteeRO;
 import org.venti.guarantee.entity.VO.AddGuaranteeVO;
+import org.venti.guarantee.entity.VO.DeleteGuaranteeVO;
 import org.venti.guarantee.entity.VO.GetGuaranteeVO;
+import org.venti.guarantee.entity.VO.UpdateGuaranteeVO;
 import org.venti.guarantee.mapper.GuaranteeMapper;
 import org.venti.guarantee.mapper.GuaranteeVerificationMapper;
 import org.venti.guarantee.service.GuaranteeService;
@@ -60,6 +64,62 @@ public class GuaranteeServiceImpl implements GuaranteeService {
                 status
         );
         return AddGuaranteeVO.builder()
+                .guarantee(ro.getGuarantee())
+                .guaranteeVerification(ro.getGuaranteeVerification())
+                .build();
+    }
+
+    @Override
+    @TransactionMethod
+    public DeleteGuaranteeVO deleteGuarantee(DeleteGuaranteeRO ro) {
+        GetGuaranteeRO getGuaranteeRO = new GetGuaranteeRO();
+        BeanUtils.copyProperties(ro, getGuaranteeRO);
+        var getGuaranteeVo = getGuarantee(getGuaranteeRO);
+        if (Objects.isNull(getGuaranteeVo)
+                || Objects.isNull(getGuaranteeVo.getGuarantee())
+                || Objects.isNull(getGuaranteeVo.getGuaranteeVerification())) {
+            return DeleteGuaranteeVO.fail();
+        }
+        guaranteeMapper.deleteGuaranteeByNumber(
+                getGuaranteeVo.getGuaranteeVerification().getGuaranteeNumber()
+        );
+        guaranteeVerificationMapper.deleteGuaranteeVerificationByCode(
+                getGuaranteeVo.getGuaranteeVerification().getSecurityCode()
+        );
+        return DeleteGuaranteeVO.success();
+    }
+
+    @Override
+    public UpdateGuaranteeVO updateGuarantee(UpdateGuaranteeRO ro) {
+        GetGuaranteeRO getGuaranteeRO = new GetGuaranteeRO();
+        BeanUtils.copyProperties(ro.getGuaranteeVerification(), getGuaranteeRO);
+        var getGuaranteeVo = getGuarantee(getGuaranteeRO);
+        if (Objects.isNull(getGuaranteeVo)
+                || Objects.isNull(getGuaranteeVo.getGuarantee())
+                || Objects.isNull(getGuaranteeVo.getGuaranteeVerification())) {
+            return UpdateGuaranteeVO.builder()
+                    .guarantee(ro.getGuarantee())
+                    .guaranteeVerification(ro.getGuaranteeVerification())
+                    .build();
+        }
+        // guarantee
+        var guaranteeNumber = ro.getGuaranteeVerification().getGuaranteeNumber();
+        var beneficiary = ro.getGuarantee().getBeneficiary();
+        var guaranteedParty = ro.getGuarantee().getGuaranteedParty();
+        var projectName = ro.getGuarantee().getProjectName();
+        var guaranteeAmount = ro.getGuarantee().getGuaranteeAmount();
+        var guaranteeDeadline = ro.getGuarantee().getGuaranteeDeadline();
+        var guarantor = ro.getGuarantee().getGuarantor();
+        guaranteeMapper.updateGuarantee(
+                beneficiary,
+                guaranteedParty,
+                projectName,
+                guaranteeAmount,
+                guaranteeDeadline,
+                guarantor,
+                guaranteeNumber
+        );
+        return UpdateGuaranteeVO.builder()
                 .guarantee(ro.getGuarantee())
                 .guaranteeVerification(ro.getGuaranteeVerification())
                 .build();
