@@ -1,16 +1,15 @@
 import org.venti.jdbc.anno.Entity;
-import org.venti.jdbc.typehandler.IntegerHandler;
 
 @Entity
 public class User {
 
-    @Entity.Column(value = "id", typeHandler = IntegerHandler.class)
+    @Entity.Column(value = "id")
     private int id;
 
     @Entity.Column("name")
     private String name;
 
-    @Entity.Column(value = "age", typeHandler = IntegerHandler.class)
+    @Entity.Column(value = "age")
     private int age;
 
     @Entity.Column("phone")

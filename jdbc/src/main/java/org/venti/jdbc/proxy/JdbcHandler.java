@@ -42,17 +42,23 @@ public class JdbcHandler implements InvocationHandler {
                 plugin = metaPlugin;
             }
         }
-        var realParamMap = new HashMap<Integer, Tuple<Object, TypeHandler>>();
-        for (var entry : methodMeta.getParamMap().entrySet()) {
-            // todo 所以必须一一对应, SELECT的话要放在最后
-            realParamMap.put(entry.getKey(), new Tuple<>(args[entry.getKey() - 1], entry.getValue()));
-        }
         // todo 是不是应该把更多东西收纳到boundSql?
-        var boundSql = BoundSql.builder()
-                .sql(methodMeta.getSql())
-                .paramMap(realParamMap)
-                .resultMap(methodMeta.getResultMap())
-                .build();
+        BoundSql boundSql = null;
+        if (plugin != null) {
+            boundSql = plugin.getBoundSql(method, methodMeta, args);
+        }
+        if (boundSql == null) {
+            var realParamMap = new HashMap<Integer, Tuple<Object, TypeHandler>>();
+            for (var entry : methodMeta.getParamMap().entrySet()) {
+                // todo 所以必须一一对应, SELECT的话要放在最后
+                realParamMap.put(entry.getKey(), new Tuple<>(args[entry.getKey() - 1], entry.getValue()));
+            }
+            boundSql = BoundSql.builder()
+                    .sql(methodMeta.getSql())
+                    .paramMap(realParamMap)
+                    .resultMap(methodMeta.getResultMap())
+                    .build();
+        }
         switch (methodMeta.getSqlType()) {
             case SqlType.QUERY -> {
                 if (methodMeta.getVisitorIndex() <= 0) {

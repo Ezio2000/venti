@@ -1,16 +1,18 @@
 package org.venti.jdbc.meta;
 
+import org.venti.common.constant.ValidStatus;
 import org.venti.common.struc.tuple.Tuple;
 import org.venti.common.util.ReflectUtil;
 import org.venti.common.util.SingletonFactory;
 import org.venti.jdbc.anno.*;
 import org.venti.jdbc.plugin.Plugin;
-import org.venti.jdbc.typehandler.TypeHandler;
+import org.venti.jdbc.typehandler.*;
 import org.venti.jdbc.visitor.SelectVisitor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +88,12 @@ public class MetaParser {
             Param paramAnnotation = parameters[i].getAnnotation(Param.class);
             if (paramAnnotation != null) {
                 try {
-                    TypeHandler handler = SingletonFactory.getInstance(paramAnnotation.typeHandler());
+                    var typeHandlerClazz = paramAnnotation.typeHandler();
+                    if (typeHandlerClazz == AdapterHandler.class) {
+                        var parameter = parameters[i];
+                        typeHandlerClazz = chooseTypeHandleClazz(parameter.getType());
+                    }
+                    TypeHandler handler = SingletonFactory.getInstance(typeHandlerClazz);
                     paramMap.put(index, handler);
                     index += 1;
                 } catch (Exception e) {
@@ -106,7 +113,11 @@ public class MetaParser {
                 Entity.Column columnAnnotation = field.getAnnotation(Entity.Column.class);
                 if (columnAnnotation != null) {
                     try {
-                        TypeHandler handler = SingletonFactory.getInstance(columnAnnotation.typeHandler());
+                        var typeHandlerClazz = columnAnnotation.typeHandler();
+                        if (typeHandlerClazz == AdapterHandler.class) {
+                            typeHandlerClazz = chooseTypeHandleClazz(field.getType());
+                        }
+                        TypeHandler handler = SingletonFactory.getInstance(typeHandlerClazz);
                         resultMap.put(columnAnnotation.value(), handler);
                     } catch (Exception e) {
                         throw new RuntimeException("Failed to instantiate TypeHandler", e);
@@ -115,6 +126,24 @@ public class MetaParser {
             }
         }
         return resultMap;
+    }
+
+    private static Class<? extends TypeHandler<?>> chooseTypeHandleClazz(Class<?> clazz) {
+        if (clazz == String.class) {
+            return StringHandler.class;
+        } else if (clazz == Integer.class || clazz == int.class) {
+            return IntegerHandler.class;
+        } else if (clazz == Long.class || clazz == long.class) {
+            return LongHandler.class;
+        } else if (clazz == Double.class || clazz == double.class) {
+            return DoubleHandler.class;
+        } else if (clazz == LocalDateTime.class) {
+            return DateTimeHandler.class;
+        } else if (clazz == ValidStatus.class) {
+            return ValidStatusHandler.class;
+        } else {
+            throw new RuntimeException(STR."Unsupported adaptive parameter type: \{clazz}");
+        }
     }
 
 }

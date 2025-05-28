@@ -25,6 +25,11 @@ public class TransactionPlugin implements Plugin {
     }
 
     @Override
+    public BoundSql getBoundSql(Method method, MethodMeta methodMeta, Object[] args) {
+        return null;
+    }
+
+    @Override
     public Object handle(Method method, Jdbc jdbc, MethodMeta methodMeta, BoundSql boundSql) throws SQLException {
         if (jdbc instanceof TransactionJdbcImpl transactionJdbcImpl) {
             switch (method.getName()) {

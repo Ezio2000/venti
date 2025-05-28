@@ -7,7 +7,6 @@ import org.venti.jdbc.anno.Param;
 import org.venti.jdbc.anno.Sql;
 import org.venti.jdbc.anno.SqlType;
 import org.venti.jdbc.plugin.transaction.TransactionMapper;
-import org.venti.jdbc.typehandler.ValidStatusHandler;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ public interface GuaranteeVerificationMapper extends TransactionMapper {
     int addGuaranteeVerification(
             @Param String guaranteeNumber,
             @Param String securityCode,
-            @Param(typeHandler = ValidStatusHandler.class) ValidStatus validStatus
+            @Param ValidStatus validStatus
     );
 
     @Sql("DELETE FROM guarantee_verification WHERE security_code = ?;")

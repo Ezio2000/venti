@@ -2,8 +2,6 @@ package org.venti.guarantee.entity.DO;
 
 import lombok.Getter;
 import org.venti.jdbc.anno.Entity;
-import org.venti.jdbc.typehandler.DateTimeHandler;
-import org.venti.jdbc.typehandler.DoubleHandler;
 
 import java.time.LocalDateTime;
 
@@ -23,10 +21,10 @@ public class GuaranteeDO extends BaseDO {
     @Entity.Column("project_name")
     private String projectName;
 
-    @Entity.Column(value = "guarantee_amount", typeHandler = DoubleHandler.class)
+    @Entity.Column(value = "guarantee_amount")
     private double guaranteeAmount;
 
-    @Entity.Column(value = "guarantee_deadline", typeHandler = DateTimeHandler.class)
+    @Entity.Column(value = "guarantee_deadline")
     private LocalDateTime guaranteeDeadline;
 
     @Entity.Column("guarantor")

@@ -1,5 +1,6 @@
 package org.venti.jdbc.anno;
 
+import org.venti.jdbc.typehandler.AdapterHandler;
 import org.venti.jdbc.typehandler.StringHandler;
 import org.venti.jdbc.typehandler.TypeHandler;
 
@@ -17,7 +18,7 @@ public @interface Entity {
 
         String value();
 
-        Class<? extends TypeHandler<?>> typeHandler() default StringHandler.class;
+        Class<? extends TypeHandler<?>> typeHandler() default AdapterHandler.class;
 
     }
 

@@ -6,8 +6,6 @@ import org.venti.jdbc.anno.Param;
 import org.venti.jdbc.anno.Sql;
 import org.venti.jdbc.anno.SqlType;
 import org.venti.jdbc.plugin.transaction.TransactionMapper;
-import org.venti.jdbc.typehandler.DateTimeHandler;
-import org.venti.jdbc.typehandler.DoubleHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,8 +28,8 @@ public interface GuaranteeMapper extends TransactionMapper {
             @Param String beneficiary,
             @Param String guaranteedParty,
             @Param String projectName,
-            @Param(typeHandler = DoubleHandler.class) double guaranteeAmount,
-            @Param(typeHandler = DateTimeHandler.class) LocalDateTime guaranteeDeadline,
+            @Param double guaranteeAmount,
+            @Param LocalDateTime guaranteeDeadline,
             @Param String guarantor
     );
 
@@ -51,8 +49,8 @@ public interface GuaranteeMapper extends TransactionMapper {
             @Param String beneficiary,
             @Param String guaranteedParty,
             @Param String projectName,
-            @Param(typeHandler = DoubleHandler.class) double guaranteeAmount,
-            @Param(typeHandler = DateTimeHandler.class) LocalDateTime guaranteeDeadline,
+            @Param double guaranteeAmount,
+            @Param LocalDateTime guaranteeDeadline,
             @Param String guarantor,
             @Param String guaranteeNumber
     );

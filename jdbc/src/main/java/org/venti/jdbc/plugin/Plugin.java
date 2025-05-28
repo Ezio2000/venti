@@ -13,6 +13,8 @@ public interface Plugin {
 
     MethodMeta load(Method method);
 
+    BoundSql getBoundSql(Method method, MethodMeta methodMeta, Object[] args);
+
     Object handle(Method method, Jdbc jdbc, MethodMeta methodMeta, BoundSql boundSql) throws SQLException;
 
 }
