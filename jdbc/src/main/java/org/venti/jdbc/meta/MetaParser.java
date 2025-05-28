@@ -93,8 +93,8 @@ public class MetaParser {
                         var parameter = parameters[i];
                         typeHandlerClazz = chooseTypeHandleClazz(parameter.getType());
                     }
-                    TypeHandler handler = SingletonFactory.getInstance(typeHandlerClazz);
-                    paramMap.put(index, handler);
+                    TypeHandler typeHandler = SingletonFactory.getInstance(typeHandlerClazz);
+                    paramMap.put(index, typeHandler);
                     index += 1;
                 } catch (Exception e) {
                     throw new RuntimeException("Failed to instantiate TypeHandler", e);
@@ -104,7 +104,7 @@ public class MetaParser {
         return new Tuple<>(visitorIndex, paramMap);
     }
 
-    private static Map<String, TypeHandler> parseResultType(Class<?> returnType) {
+    public static Map<String, TypeHandler> parseResultType(Class<?> returnType) {
         Map<String, TypeHandler> resultMap = new HashMap<>();
         Entity entityAnnotation = returnType.getAnnotation(Entity.class);
         if (entityAnnotation != null) {
@@ -117,8 +117,8 @@ public class MetaParser {
                         if (typeHandlerClazz == AdapterHandler.class) {
                             typeHandlerClazz = chooseTypeHandleClazz(field.getType());
                         }
-                        TypeHandler handler = SingletonFactory.getInstance(typeHandlerClazz);
-                        resultMap.put(columnAnnotation.value(), handler);
+                        TypeHandler typeHandler = SingletonFactory.getInstance(typeHandlerClazz);
+                        resultMap.put(columnAnnotation.value(), typeHandler);
                     } catch (Exception e) {
                         throw new RuntimeException("Failed to instantiate TypeHandler", e);
                     }
@@ -128,7 +128,7 @@ public class MetaParser {
         return resultMap;
     }
 
-    private static Class<? extends TypeHandler<?>> chooseTypeHandleClazz(Class<?> clazz) {
+    public static Class<? extends TypeHandler<?>> chooseTypeHandleClazz(Class<?> clazz) {
         if (clazz == String.class) {
             return StringHandler.class;
         } else if (clazz == Integer.class || clazz == int.class) {
