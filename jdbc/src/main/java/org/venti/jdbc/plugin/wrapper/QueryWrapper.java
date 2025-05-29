@@ -8,31 +8,23 @@ import org.venti.jdbc.typehandler.TypeHandler;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class QueryWrapper implements Wrapper {
 
-    private Set<String> columnSet = Set.of("*");
-
-    private String table;
-
-    private AtomicInteger paramIndex = new AtomicInteger(1);
-
     // == select ==
     
-    private List<String> selectConditionList = List.of();
+    private List<String> selectList = List.of();
 
     private Map<Integer, Tuple<Object, TypeHandler>> selectParamMap = new ConcurrentHashMap<>();
     
     public QueryWrapper select(String column) {
-        selectConditionList.add(column);
+        selectList.add(column);
         return this;
     }
     
     public QueryWrapper select(QueryWrapper sub) {
-        selectConditionList.add(sub.getSql());
+        selectList.add(sub.getSql());
         sub.getRealParamMap().forEach((_, subTuple) -> {
             var index = selectParamMap.size();
             selectParamMap.put(index, subTuple);
@@ -53,17 +45,17 @@ public class QueryWrapper implements Wrapper {
 
     // == from ==
 
-    private List<String> fromConditionList = List.of();
+    private List<String> fromList = List.of();
 
     private Map<Integer, Tuple<Object, TypeHandler>> fromParamMap = new ConcurrentHashMap<>();
 
     public QueryWrapper from(String column) {
-        fromConditionList.add(column);
+        fromList.add(column);
         return this;
     }
 
     public QueryWrapper from(QueryWrapper sub) {
-        fromConditionList.add(sub.getSql());
+        fromList.add(sub.getSql());
         sub.getRealParamMap().forEach((_, subTuple) -> {
             var index = fromParamMap.size();
             fromParamMap.put(index, subTuple);
@@ -73,12 +65,12 @@ public class QueryWrapper implements Wrapper {
 
     // == eq ==
 
-    private List<String> eqConditionList = List.of();
+    private List<String> eqList = List.of();
 
     private Map<Integer, Tuple<Object, TypeHandler>> eqParamMap = new ConcurrentHashMap<>();
 
     public QueryWrapper eq(String column, Object value, Class<? extends TypeHandler> typeHandlerClazz) {
-        eqConditionList.add(STR."\{column} = ?");
+        eqList.add(STR."\{column} = ?");
         var typeHandler = SingletonFactory.getInstance(typeHandlerClazz);
         var index = eqParamMap.size() + 1;
         eqParamMap.put(index, new Tuple<>(value, typeHandler));
@@ -91,7 +83,7 @@ public class QueryWrapper implements Wrapper {
     }
 
     public QueryWrapper eq(String column, QueryWrapper sub) {
-        eqConditionList.add(STR."\{column} = \{sub.getSql()}");
+        eqList.add(STR."\{column} = \{sub.getSql()}");
         sub.getRealParamMap().forEach((_, subTuple) -> {
             var index = eqParamMap.size() + 1;
             eqParamMap.put(index, subTuple);
@@ -101,12 +93,12 @@ public class QueryWrapper implements Wrapper {
 
     // == ne （不等于） ==
 
-    private List<String> neConditionList = List.of();
+    private List<String> neList = List.of();
 
     private Map<Integer, Tuple<Object, TypeHandler>> neParamMap = new ConcurrentHashMap<>();
 
     public QueryWrapper ne(String column, Object value, Class<? extends TypeHandler> typeHandlerClazz) {
-        neConditionList.add(STR."\{column} <> ?");
+        neList.add(STR."\{column} <> ?");
         var typeHandler = SingletonFactory.getInstance(typeHandlerClazz);
         var index = neParamMap.size() + 1;
         neParamMap.put(index, new Tuple<>(value, typeHandler));
@@ -119,10 +111,66 @@ public class QueryWrapper implements Wrapper {
     }
 
     public QueryWrapper ne(String column, QueryWrapper sub) {
-        neConditionList.add(STR."\{column} = \{sub.getSql()}");
+        neList.add(STR."\{column} <> \{sub.getSql()}");
         sub.getRealParamMap().forEach((_, subTuple) -> {
             var index = neParamMap.size() + 1;
             neParamMap.put(index, subTuple);
+        });
+        return this;
+    }
+
+    // == gt ==
+
+    private List<String> gtList = List.of();
+
+    private Map<Integer, Tuple<Object, TypeHandler>> gtParamMap = new ConcurrentHashMap<>();
+
+    public QueryWrapper gt(String column, Object value, Class<? extends TypeHandler> typeHandlerClazz) {
+        gtList.add(STR."\{column} > ?");
+        var typeHandler = SingletonFactory.getInstance(typeHandlerClazz);
+        var index = gtParamMap.size() + 1;
+        gtParamMap.put(index, new Tuple<>(value, typeHandler));
+        return this;
+    }
+
+    public QueryWrapper gt(String column, Object value) {
+        var typeHandlerClazz = MetaParser.chooseTypeHandleClazz(value.getClass());
+        return gt(column, value, typeHandlerClazz);
+    }
+
+    public QueryWrapper gt(String column, QueryWrapper sub) {
+        gtList.add(STR."\{column} > \{sub.getSql()}");
+        sub.getRealParamMap().forEach((_, subTuple) -> {
+            var index = gtParamMap.size() + 1;
+            gtParamMap.put(index, subTuple);
+        });
+        return this;
+    }
+
+    // == lt ==
+
+    private List<String> ltList = List.of();
+
+    private Map<Integer, Tuple<Object, TypeHandler>> ltParamMap = new ConcurrentHashMap<>();
+
+    public QueryWrapper lt(String column, Object value, Class<? extends TypeHandler> typeHandlerClazz) {
+        ltList.add(STR."\{column} < ?");
+        var typeHandler = SingletonFactory.getInstance(typeHandlerClazz);
+        var index = ltParamMap.size() + 1;
+        ltParamMap.put(index, new Tuple<>(value, typeHandler));
+        return this;
+    }
+
+    public QueryWrapper lt(String column, Object value) {
+        var typeHandlerClazz = MetaParser.chooseTypeHandleClazz(value.getClass());
+        return lt(column, value, typeHandlerClazz);
+    }
+
+    public QueryWrapper lt(String column, QueryWrapper sub) {
+        ltList.add(STR."\{column} < \{sub.getSql()}");
+        sub.getRealParamMap().forEach((_, subTuple) -> {
+            var index = ltParamMap.size() + 1;
+            ltParamMap.put(index, subTuple);
         });
         return this;
     }
