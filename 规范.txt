@@ -1,0 +1,3 @@
+1、@Override方法要写在最前面
+2、exception -> e; throwable -> t
+3、反射用parameter; 自定义的用param
