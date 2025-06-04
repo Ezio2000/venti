@@ -1,6 +1,5 @@
-package org.venti.jdbc.plugin.wrapper.spec;
+package org.venti.jdbc.plugin.wrapper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface Wrapper {
