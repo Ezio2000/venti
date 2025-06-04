@@ -8,6 +8,6 @@ public interface FromFunc {
 
     FromFunc from(String table);
 
-    FromFunc from(Consumer<SelectSqlFunc> consumer);
+    FromFunc from(Consumer<SelectSqlFunc> consumer, String alias);
 
 }

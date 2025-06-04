@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 
 public interface SelectFunc {
 
-    SelectFunc select(String... columns);
+    SelectFunc select(String... column);
 
-    SelectFunc selectSub(Consumer<SelectSqlFunc> consumer);
+    SelectFunc select(Consumer<SelectSqlFunc> consumer, String alias);
 
 }

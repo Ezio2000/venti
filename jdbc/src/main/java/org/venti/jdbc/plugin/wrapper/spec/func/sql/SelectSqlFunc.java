@@ -1,4 +1,9 @@
 package org.venti.jdbc.plugin.wrapper.spec.func.sql;
 
-public interface SelectSqlFunc {
+import org.venti.jdbc.plugin.wrapper.spec.func.bone.FromFunc;
+import org.venti.jdbc.plugin.wrapper.spec.func.bone.JoinFunc;
+import org.venti.jdbc.plugin.wrapper.spec.func.bone.SelectFunc;
+
+public interface SelectSqlFunc extends
+        SelectFunc, FromFunc, JoinFunc {
 }

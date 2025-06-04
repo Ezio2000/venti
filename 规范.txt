@@ -2,3 +2,4 @@
 2、exception -> e; throwable -> t
 3、反射用parameter; 自定义的用param
 4、构造方法/工厂构造方法 写在override前面
+5、.stream()和前面的实例在同一行
