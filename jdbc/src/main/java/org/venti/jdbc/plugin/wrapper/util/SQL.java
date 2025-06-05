@@ -1,45 +1,62 @@
 package org.venti.jdbc.plugin.wrapper.util;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import org.venti.jdbc.plugin.wrapper.spec.impl.EqWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.SelectWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.bone.FromWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.bone.JoinWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.condition.GtWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.condition.LogicalWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.condition.LtWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.condition.NeWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.sql.ConditionWrapper;
+import org.venti.jdbc.plugin.wrapper.spec.impl.sql.SelectSqlWrapper;
 
 public class SQL {
 
-    public static String AS(String table, String alias) {
-        if (table.startsWith("SELECT")) {
-            return STR."(\{table}) AS \{alias}";
-        }
-        return STR."\{table} AS \{alias}";
+    // sql
+
+    public static SelectSqlWrapper ofSelectSql() {
+        return new SelectSqlWrapper();
     }
 
-    public static String ON(String table, String condition) {
-        if (table.startsWith("SELECT")) {
-            return STR."(\{table}) ON \{condition}";
-        }
-        return STR."\{table} ON \{condition}";
+    public static ConditionWrapper ofCondition() {
+        return new ConditionWrapper();
     }
 
-    public static String AS_ON(String table, String alias, String condition) {
-        if (table.startsWith("SELECT")) {
-            return STR."(\{table}) AS \{alias} ON \{condition}";
-        }
-        return STR."\{table} AS \{alias} ON \{condition}";
+    // bone
+
+    public static SelectWrapper ofSelect() {
+        return new SelectWrapper();
     }
 
-    public static String AND(List<String> conditionList) {
-        return STR."(\{conditionList.stream()
-                .map(condition -> STR."(\{condition})")
-                .collect(Collectors.joining(" AND "))})";
+    public static FromWrapper ofFrom() {
+        return new FromWrapper();
     }
 
-    public static String OR(List<String> conditionList) {
-        return STR."(\{conditionList.stream()
-                .map(condition -> STR."(\{condition})")
-                .collect(Collectors.joining(" OR "))})";
+    public static JoinWrapper ofJoin() {
+        return new JoinWrapper();
     }
 
-    public static String NOT(String condition) {
-        return STR."(NOT (\{condition}))";
+    // condition
+
+    public static EqWrapper ofEq() {
+        return new EqWrapper();
+    }
+
+    public static NeWrapper ofNe() {
+        return new NeWrapper();
+    }
+
+    public static GtWrapper ofGt() {
+        return new GtWrapper();
+    }
+
+    public static LtWrapper ofLt() {
+        return new LtWrapper();
+    }
+
+    public static LogicalWrapper ofLogical() {
+        return new LogicalWrapper();
     }
 
 }

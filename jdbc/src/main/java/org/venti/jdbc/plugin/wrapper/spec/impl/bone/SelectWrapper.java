@@ -4,7 +4,7 @@ import org.venti.jdbc.plugin.wrapper.spec.func.bone.SelectFunc;
 import org.venti.jdbc.plugin.wrapper.Wrapper;
 import org.venti.jdbc.plugin.wrapper.spec.func.sql.SelectSqlFunc;
 import org.venti.jdbc.plugin.wrapper.spec.impl.sql.SelectSqlWrapper;
-import org.venti.jdbc.plugin.wrapper.util.SQL;
+import org.venti.jdbc.plugin.wrapper.util.MosaicUtil;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -20,10 +20,9 @@ public class SelectWrapper implements Wrapper, SelectFunc {
     @Override
     public String getSql() {
         var sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT ");
         sqlBuilder.append(
                 Stream.concat(columnList.stream(), subMap.entrySet().stream()
-                                .map(entry -> SQL.AS(entry.getValue().getSql(), entry.getKey())))
+                                .map(entry -> MosaicUtil.AS(entry.getValue().getSql(), entry.getKey())))
                         .collect(Collectors.joining(", "))
         );
         return sqlBuilder.toString();
@@ -31,7 +30,9 @@ public class SelectWrapper implements Wrapper, SelectFunc {
 
     @Override
     public List<Object> getParamList() {
-        return subMap.values().stream().map(SelectSqlWrapper::getParamList).collect(Collectors.toList());
+        return subMap.values().stream()
+                .flatMap(sub -> sub.getParamList().stream())
+                .collect(Collectors.toList());
     }
 
     @Override

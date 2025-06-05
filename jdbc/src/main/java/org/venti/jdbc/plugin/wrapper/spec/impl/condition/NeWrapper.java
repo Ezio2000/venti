@@ -34,6 +34,9 @@ public class NeWrapper implements Wrapper, NeFunc {
 
     @Override
     public NeWrapper ne(String column, Object value) {
+        if (value instanceof Consumer<?> consumer) {
+            return ne(column, consumer);
+        }
         this.column = column;
         if (value instanceof SelectSqlWrapper sub) {
             this.sub = sub;

@@ -5,6 +5,7 @@ import org.venti.jdbc.plugin.wrapper.Wrapper;
 import org.venti.jdbc.plugin.wrapper.spec.func.bone.FromFunc;
 import org.venti.jdbc.plugin.wrapper.spec.func.sql.SelectSqlFunc;
 import org.venti.jdbc.plugin.wrapper.spec.impl.sql.SelectSqlWrapper;
+import org.venti.jdbc.plugin.wrapper.util.MosaicUtil;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -18,11 +19,10 @@ public class FromWrapper implements Wrapper, FromFunc {
     @Override
     public String getSql() {
         var sqlBuilder = new StringBuilder();
-        sqlBuilder.append("FROM ");
         if (table != null) {
             sqlBuilder.append(table);
         } else {
-            sqlBuilder.append(subTuple.e2().getSql());
+            sqlBuilder.append(MosaicUtil.AS(subTuple.e2().getSql(), subTuple.e1()));
         }
         return sqlBuilder.toString();
     }

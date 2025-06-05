@@ -34,6 +34,9 @@ public class EqWrapper implements Wrapper, EqFunc {
 
     @Override
     public EqWrapper eq(String column, Object value) {
+        if (value instanceof Consumer<?> consumer) {
+            return eq(column, consumer);
+        }
         this.column = column;
         if (value instanceof SelectSqlWrapper sub) {
             this.sub = sub;

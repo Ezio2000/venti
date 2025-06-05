@@ -7,7 +7,7 @@ import org.venti.jdbc.plugin.wrapper.spec.func.sql.ConditionFunc;
 import org.venti.jdbc.plugin.wrapper.spec.func.sql.SelectSqlFunc;
 import org.venti.jdbc.plugin.wrapper.spec.impl.sql.ConditionWrapper;
 import org.venti.jdbc.plugin.wrapper.spec.impl.sql.SelectSqlWrapper;
-import org.venti.jdbc.plugin.wrapper.util.SQL;
+import org.venti.jdbc.plugin.wrapper.util.MosaicUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -102,10 +102,14 @@ public class JoinWrapper implements Wrapper, JoinFunc {
         return join(subConsumer, conditionConsumer, alias, "NATURE JOIN");
     }
 
+    public boolean isEmpty() {
+        return subMap.isEmpty() && tableMap.isEmpty();
+    }
+
     private JoinWrapper join(String table, Consumer<ConditionFunc> consumer, String direction) {
         var condition = new ConditionWrapper();
         consumer.accept(condition);
-        tableMap.put(SQL.ON(table, condition.getSql()), direction);
+        tableMap.put(MosaicUtil.ON(table, condition.getSql()), direction);
         return this;
     }
 
@@ -115,7 +119,7 @@ public class JoinWrapper implements Wrapper, JoinFunc {
         subConsumer.accept(sub);
         conditionConsumer.accept(condition);
         subMap.put(Tuple.of(
-                SQL.AS_ON(sub.getSql(), alias, condition.getSql()), sub
+                MosaicUtil.AS_ON(sub.getSql(), alias, condition.getSql()), sub
         ), direction);
         return this;
     }

@@ -4,7 +4,7 @@ import org.venti.jdbc.plugin.wrapper.Wrapper;
 import org.venti.jdbc.plugin.wrapper.spec.func.condition.LogicalFunc;
 import org.venti.jdbc.plugin.wrapper.spec.func.sql.ConditionFunc;
 import org.venti.jdbc.plugin.wrapper.spec.impl.sql.ConditionWrapper;
-import org.venti.jdbc.plugin.wrapper.util.SQL;
+import org.venti.jdbc.plugin.wrapper.util.MosaicUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,24 +26,28 @@ public class LogicalWrapper implements Wrapper, LogicalFunc {
     @Override
     public String getSql() {
         return switch (action.get()) {
-            case AND -> SQL.AND(conditionList.stream()
+            case AND -> MosaicUtil.AND(conditionList.stream()
                     .map(ConditionWrapper::getSql)
                     .collect(Collectors.toList()));
-            case OR -> SQL.OR(conditionList.stream()
+            case OR -> MosaicUtil.OR(conditionList.stream()
                     .map(ConditionWrapper::getSql)
                     .collect(Collectors.toList()));
-            case NOT -> SQL.NOT(conditionList.getFirst().getSql());
+            case NOT -> MosaicUtil.NOT(conditionList.getFirst().getSql());
         };
     }
 
     @Override
     public List<Object> getParamList() {
-        return conditionList.stream().map(ConditionWrapper::getParamList).collect(Collectors.toList());
+        return conditionList.stream()
+                .flatMap(sub -> sub.getParamList().stream())
+                .collect(Collectors.toList());
     }
 
+    @SafeVarargs
     @Override
-    public LogicalWrapper and(Consumer<ConditionFunc>... consumers) {
+    public final LogicalWrapper and(Consumer<ConditionFunc>... consumers) {
         action.set(LogicalAction.AND);
+        conditionList.clear();
         Arrays.stream(consumers).forEach(consumer -> {
             var condition = new ConditionWrapper();
             consumer.accept(condition);
@@ -52,9 +56,11 @@ public class LogicalWrapper implements Wrapper, LogicalFunc {
         return this;
     }
 
+    @SafeVarargs
     @Override
-    public LogicalWrapper or(Consumer<ConditionFunc>... consumers) {
+    public final LogicalWrapper or(Consumer<ConditionFunc>... consumers) {
         action.set(LogicalAction.OR);
+        conditionList.clear();
         Arrays.stream(consumers).forEach(consumer -> {
             var condition = new ConditionWrapper();
             consumer.accept(condition);
@@ -66,6 +72,7 @@ public class LogicalWrapper implements Wrapper, LogicalFunc {
     @Override
     public LogicalWrapper not(Consumer<ConditionFunc> consumer) {
         action.set(LogicalAction.NOT);
+        conditionList.clear();
         var condition = new ConditionWrapper();
         consumer.accept(condition);
         conditionList.add(condition);

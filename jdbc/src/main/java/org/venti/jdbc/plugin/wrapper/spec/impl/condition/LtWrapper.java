@@ -34,6 +34,9 @@ public class LtWrapper implements Wrapper, LtFunc {
 
     @Override
     public LtWrapper lt(String column, Object value) {
+        if (value instanceof Consumer<?> consumer) {
+            return lt(column, consumer);
+        }
         this.column = column;
         if (value instanceof SelectSqlWrapper sub) {
             this.sub = sub;
