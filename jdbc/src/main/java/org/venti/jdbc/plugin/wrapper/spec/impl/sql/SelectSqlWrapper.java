@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SelectSqlWrapper implements Wrapper, SelectSqlFunc, ConditionFunc {
+public class SelectSqlWrapper implements Wrapper, SelectSqlFunc {
 
     protected final SelectWrapper select = SQL.ofSelect();
 
@@ -198,26 +198,6 @@ public class SelectSqlWrapper implements Wrapper, SelectSqlFunc, ConditionFunc {
     public SelectSqlWrapper not(Consumer<ConditionFunc> consumer) {
         condition.not(consumer);
         return this;
-    }
-
-    public static void main(String[] args) {
-        var wrapper = SQL.ofSelectSql()
-                .select("col1", "col2", "col3")
-                .select(s -> s.select("*")
-                        .from("user")
-                        .and(
-                                c -> c.gt("money", 1000.3),
-                                c -> c.lt("money", 99999)
-                        ), "s1")
-                .from(s -> s.select("*")
-                        .from("next_table"), "sss")
-                .ne("col2", "ningjun")
-                .or(
-                        c -> c.lt("record", 100),
-                        c -> c.gt("record", 99999)
-                );
-        System.out.println(wrapper.getSql());
-        System.out.println(wrapper.getParamList());
     }
 
 }

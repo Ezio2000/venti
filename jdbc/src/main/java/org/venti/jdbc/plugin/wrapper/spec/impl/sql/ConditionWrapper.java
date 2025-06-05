@@ -122,25 +122,4 @@ public class ConditionWrapper implements Wrapper, ConditionFunc {
         return conditionList.isEmpty();
     }
 
-    public static void main(String[] args) {
-        var wrapper = SQL.ofCondition()
-                .eq("id", 10)
-                .lt("age", 90)
-                .or(
-                        c -> c.eq("name", "b"),
-                        c -> c.ne("name", "c"),
-                        c1 -> c1.or(
-                                c2 -> c2.gt("age", 80),
-                                c2 -> c2.ne("age", 80)
-                        ),
-                        c1 -> c1.not(
-                                c2 -> c2.eq("gender", "MALE")
-                                        .gt("age", 80)
-                                        .ne("age", 80)
-                        )
-                );
-        System.out.println(wrapper.getSql());
-        System.out.println(wrapper.getParamList());
-    }
-
 }
