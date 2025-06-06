@@ -2,6 +2,7 @@ import org.venti.jdbc.plugin.wrapper.util.SQL;
 
 void main() {
     select();
+    insert();
 }
 
 private void select() {
@@ -20,6 +21,18 @@ private void select() {
                     c -> c.lt("record", 100),
                     c -> c.gt("record", 99999)
             );
+    System.out.println(wrapper.getSql());
+    System.out.println(wrapper.getParamList());
+}
+
+private void insert() {
+    var wrapper = SQL.ofInsertSql()
+            .insert("user", "name", "age", "gender")
+            .values("xieningjun", 10, "FEMALE")
+            .values("yuanru", 20, "MALE")
+            .values(s -> s.select("name", "age", "gender")
+                    .from("driver")
+                    .eq("name", "<UNK>"));
     System.out.println(wrapper.getSql());
     System.out.println(wrapper.getParamList());
 }

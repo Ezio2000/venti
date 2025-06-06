@@ -56,4 +56,8 @@ public class ValuesWrapper implements Wrapper, ValuesFunc {
         return this;
     }
 
+    public boolean isSubSelect() {
+        return sub != null;
+    }
+
 }
