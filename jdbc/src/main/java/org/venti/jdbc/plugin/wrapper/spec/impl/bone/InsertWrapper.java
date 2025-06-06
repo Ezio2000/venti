@@ -14,7 +14,7 @@ public class InsertWrapper implements Wrapper, InsertFunc {
 
     @Override
     public String getSql() {
-        return STR."\{table}(\{String.join(", ", columns)})";
+        return STR."\{table} (\{String.join(", ", columns)})";
     }
 
     @Override

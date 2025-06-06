@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 public interface ValuesFunc {
 
-    ValuesFunc values(String... values);
+    ValuesFunc values(Object... values);
 
     ValuesFunc values(Consumer<SelectSqlFunc> consumer);
 

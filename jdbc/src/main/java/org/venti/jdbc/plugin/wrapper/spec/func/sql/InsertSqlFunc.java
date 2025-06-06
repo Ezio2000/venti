@@ -11,7 +11,7 @@ public interface InsertSqlFunc extends
     InsertSqlFunc insert(String table, String... columns);
 
     @Override
-    InsertSqlFunc values(String... values);
+    InsertSqlFunc values(Object... values);
 
     @Override
     InsertSqlFunc values(Consumer<SelectSqlFunc> consumer);
