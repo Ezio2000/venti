@@ -146,4 +146,15 @@ public class MetaParser {
         }
     }
 
+    public static Map<Integer, Tuple<Object, TypeHandler>> parseObjListForRealParamMap(List<Object> objList) {
+        Map<Integer, Tuple<Object, TypeHandler>> resultMap = new HashMap<>();
+        objList.forEach(obj -> {
+            var index = resultMap.size() + 1;
+            TypeHandler typeHandler = SingletonFactory.getInstance(chooseTypeHandleClazz(obj.getClass()));
+            var tuple = Tuple.of(obj, typeHandler);
+            resultMap.put(index, tuple);
+        });
+        return resultMap;
+    }
+
 }

@@ -55,20 +55,23 @@ public class JdbcHandler implements InvocationHandler {
             }
             boundSql = BoundSql.builder()
                     .sql(methodMeta.getSql())
+                    .sqlType(methodMeta.getSqlType())
                     .paramMap(realParamMap)
                     .resultMap(methodMeta.getResultMap())
+                    .returnType(methodMeta.getReturnType())
+                    .visitorIndex(methodMeta.getVisitorIndex())
                     .build();
         }
-        switch (methodMeta.getSqlType()) {
+        switch (boundSql.getSqlType()) {
             case SqlType.QUERY -> {
-                if (methodMeta.getVisitorIndex() <= 0) {
-                    if (methodMeta.getReturnType() == null) {
+                if (boundSql.getVisitorIndex() <= 0) {
+                    if (boundSql.getReturnType() == null) {
                         throw new SQLException("Visitor index is less than 0 and return type is null.");
                     }
                     var list = new ArrayList<>();
-                    jdbc.query(boundSql, new TransferSelectVisitor(methodMeta.getReturnType(), list));
+                    jdbc.query(boundSql, new TransferSelectVisitor(boundSql.getReturnType(), list));
                     // todo 这个判断不对，要改
-                    if (methodMeta.getReturnType() instanceof ParameterizedType) {
+                    if (boundSql.getReturnType() instanceof ParameterizedType) {
                         return list;
                     } else {
                         if (!list.isEmpty()) {
@@ -78,7 +81,7 @@ public class JdbcHandler implements InvocationHandler {
                         }
                     }
                 }
-                return jdbc.query(boundSql, (SelectVisitor) args[methodMeta.getVisitorIndex()]);
+                return jdbc.query(boundSql, (SelectVisitor) args[boundSql.getVisitorIndex()]);
             }
             case SqlType.UPDATE -> {
                 return jdbc.update(boundSql);

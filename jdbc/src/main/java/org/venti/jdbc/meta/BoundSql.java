@@ -3,8 +3,10 @@ package org.venti.jdbc.meta;
 import lombok.Builder;
 import lombok.Getter;
 import org.venti.common.struc.tuple.Tuple;
+import org.venti.jdbc.anno.SqlType;
 import org.venti.jdbc.typehandler.TypeHandler;
 
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,9 +19,18 @@ public class BoundSql {
     @Getter
     private String sql;
 
+    @Getter
+    private SqlType sqlType;
+
     private Map<Integer, Tuple<Object, TypeHandler>> paramMap;
 
     private Map<String, TypeHandler> resultMap;
+
+    @Getter
+    private Type returnType;
+
+    @Getter
+    private Integer visitorIndex;
 
     public void bind(PreparedStatement ps) throws SQLException {
         for (var entry : paramMap.entrySet()) {
