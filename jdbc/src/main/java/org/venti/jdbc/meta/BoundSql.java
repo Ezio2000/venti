@@ -30,7 +30,8 @@ public class BoundSql {
     private Type returnType;
 
     @Getter
-    private Integer visitorIndex;
+    @Builder.Default
+    private Integer visitorIndex = -1;
 
     public void bind(PreparedStatement ps) throws SQLException {
         for (var entry : paramMap.entrySet()) {
