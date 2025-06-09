@@ -19,7 +19,7 @@ public class LtWrapper implements Wrapper, LtFunc {
     @Override
     public String getSql() {
         if (sub != null) {
-            return STR."\{column} < \{sub.getSql()}";
+            return STR."\{column} < (\{sub.getSql()})";
         }
         return STR."\{column} < ?";
     }

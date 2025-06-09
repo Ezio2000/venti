@@ -19,7 +19,7 @@ public class GtWrapper implements Wrapper, GtFunc {
     @Override
     public String getSql() {
         if (sub != null) {
-            return STR."\{column} > \{sub.getSql()}";
+            return STR."\{column} > (\{sub.getSql()})";
         }
         return STR."\{column} > ?";
     }

@@ -28,6 +28,7 @@ void main() {
 
     UserMapper userMapper = ProxyUtil.createProxy(UserMapper.class, new JdbcHandler(jdbc, UserMapper.class));
 
+    userMapper.begin();
     var insert = userMapper.update(
             SQL.ofInsertSql()
                     .insert("user", "name", "age")
@@ -35,6 +36,7 @@ void main() {
                             .from("user"))
     );
     System.out.println(insert);
+    userMapper.rollback();
 
     var select = userMapper.query(
             SQL.ofSelectSql()

@@ -19,7 +19,7 @@ public class NeWrapper implements Wrapper, NeFunc {
     @Override
     public String getSql() {
         if (sub != null) {
-            return STR."\{column} <> \{sub.getSql()}";
+            return STR."\{column} <> (\{sub.getSql()})";
         }
         return STR."\{column} <> ?";
     }

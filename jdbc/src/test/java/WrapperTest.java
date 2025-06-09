@@ -3,6 +3,8 @@ import org.venti.jdbc.plugin.wrapper.util.SQL;
 void main() {
     select();
     insert();
+    update();
+    delete();
 }
 
 private void select() {
@@ -20,6 +22,8 @@ private void select() {
             .or(
                     c -> c.lt("record", 100),
                     c -> c.gt("record", 99999)
+            ).ne("col3", s -> s.select("passenger")
+                    .from("user")
             );
     System.out.println(wrapper.getSql());
     System.out.println(wrapper.getParamList());
@@ -33,6 +37,36 @@ private void insert() {
             .values(s -> s.select("name", "age", "gender")
                     .from("driver")
                     .eq("name", "<UNK>"));
+    System.out.println(wrapper.getSql());
+    System.out.println(wrapper.getParamList());
+}
+
+private void update() {
+    var wrapper = SQL.ofUpdateSql()
+            .update("user")
+            .set("phone", "136cc")
+            .set("t1", s -> s.select("t1")
+                    .from("passenger")
+                    .gt("num", 999)
+            )
+            .eq("name", "xieningjun")
+            .eq("gender", s -> s.select("name", "age", "gender")
+                    .from("driver")
+                    .eq("name", "<UNK>")
+            );
+    System.out.println(wrapper.getSql());
+    System.out.println(wrapper.getParamList());
+}
+
+private void delete() {
+    var wrapper = SQL.ofDeleteSql()
+            .delete("user")
+            .not(
+                    c -> c.gt("num", s -> s.select("jgd")
+                            .from("driver")
+                            .eq("name", "<UNK>")
+                    )
+            );
     System.out.println(wrapper.getSql());
     System.out.println(wrapper.getParamList());
 }

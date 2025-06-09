@@ -24,7 +24,7 @@ public class ConditionWrapper implements Wrapper, ConditionFunc {
     @Override
     public List<Object> getParamList() {
         return conditionList.stream()
-                .flatMap(wrapper -> wrapper.getParamList().stream())
+                .flatMap(sub -> sub.getParamList().stream())
                 .collect(Collectors.toList());
     }
 
