@@ -16,11 +16,6 @@
         <module>mybatis</module>
         <module>guarantee</module>
         <module>jdbc</module>
-        <module>resource-injector</module>
-        <module>resource-injector/resource-injector-core</module>
-        <module>resource-injector/resource-injector-anno</module>
-        <module>resource-injector/resource-injector-spring-boot-starter</module>
-        <module>resource-injector/resource-injector-adapter-mysql</module>
     </modules>
 
     <dependencies>
