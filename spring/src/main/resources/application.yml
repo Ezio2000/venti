@@ -6,11 +6,24 @@ spring:
     name: venti
   main:
     web-application-type: reactive
+  kafka:
+    bootstrap-servers: 10.200.2.9:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
   threads:
     virtual:
       enabled: true
 
 management:
+  metrics:
+    enable:
+      kafka: true
   endpoints:
     web:
       exposure:
