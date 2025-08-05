@@ -2,43 +2,40 @@ package org.venti.elastic.output;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
+import org.elasticsearch.action.bulk.BackoffPolicy;
+import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.venti.common.util.SleepUtil;
+import org.elasticsearch.core.TimeValue;
 import org.venti.core.event.Event;
 import org.venti.core.output.OutputPlugin;
+import org.venti.elastic.config.ElasticConfig;
 import org.venti.elastic.net.ElasticNetSupport;
+import org.venti.elastic.net.LoggingBulkListener;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 @Slf4j
 public class ElasticOutputPlugin implements OutputPlugin {
 
-    private final BlockingQueue<Event> flushQueue = new LinkedBlockingQueue<>(10000);
+    private final ElasticConfig config;
 
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
+    private BlockingQueue<Event> flushQueue;
+
     private volatile RestHighLevelClient client;
 
-    private final int batchSize = 1000;
+    private volatile BulkProcessor bulk;
 
-    private final int flushIntervalMs = 100;
-
-    private final int maxRetry = 1;
+    public ElasticOutputPlugin(ElasticConfig config) {
+        this.config = config;
+    }
 
     @Override
     public String getName() {
@@ -47,24 +44,34 @@ public class ElasticOutputPlugin implements OutputPlugin {
 
     @Override
     public void init() {
-        var credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("ruqi_read", "VQD)oUx0KF~6IMnJ@3"));
+        flushQueue = new LinkedBlockingQueue<>(config.getFlushCapacity());
         client = new RestHighLevelClient(
-                RestClient.builder(new HttpHost("elasticsearch-o-00otipsr2ird.escloud.ivolces.com", 9200, "https"))
+                RestClient.builder(new HttpHost(config.getHost(), config.getPort(), config.getScheme()))
                         .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
-                                .setDefaultCredentialsProvider(credentialsProvider)
+                                .setDefaultCredentialsProvider(ElasticNetSupport.createCredentialsProvider(config.getUsername(), config.getPassword()))
                                 .setSSLContext(ElasticNetSupport.createSSLContext())
-                                .setMaxConnTotal(100)
-                                .setMaxConnPerRoute(100)
+                                .setMaxConnTotal(config.getMaxConnTotal())
+                                .setMaxConnPerRoute(config.getMaxConnPerRoute())
+                                .setThreadFactory(Thread.ofVirtual().factory())
+                                .setDefaultIOReactorConfig(IOReactorConfig.custom().setIoThreadCount(config.getIoThreadCount()).build())
                         )
         );
+        bulk = BulkProcessor.builder(
+                        (req, listener) ->
+                                client.bulkAsync(req, RequestOptions.DEFAULT, listener),
+                        new LoggingBulkListener(), "bulk")
+                .setBulkActions(config.getBatchSize())
+//                .setBulkSize(new ByteSizeValue(5, ByteSizeUnit.MB))
+                .setFlushInterval(TimeValue.timeValueMillis(config.getFlushInterval()))
+                .setConcurrentRequests(config.getConcurrentRequests())
+                .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(config.getBulkTimeout()), config.getBulkRetry()))
+                .build();
     }
 
     @Override
     public void start() {
         executor.submit(() -> {
             while (!Thread.currentThread().isInterrupted()) {
-                SleepUtil.sleep(flushIntervalMs);
                 flush();
             }
         });
@@ -73,12 +80,7 @@ public class ElasticOutputPlugin implements OutputPlugin {
     @Override
     public void stop() {
         executor.shutdownNow();
-        try {
-            flush();
-            client.close();
-        } catch (IOException e) {
-            log.error("Error on stopping plugin", e);
-        }
+        bulk.close();
     }
 
     @Override
@@ -100,48 +102,20 @@ public class ElasticOutputPlugin implements OutputPlugin {
     }
 
     private void flush() {
-        // todo 使用bulkProcessor
-        if (flushQueue.isEmpty()) {
+        Event probeEvent;
+        try {
+            probeEvent = flushQueue.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             return;
         }
-        List<Event> batch = new ArrayList<>(batchSize);
-        flushQueue.drainTo(batch, batchSize);
-        if (batch.isEmpty()) {
-            return;
-        }
-        BulkRequest req = new BulkRequest();
+        List<Event> batch = new ArrayList<>(config.getBatchSize());
+        batch.add(probeEvent);
+        flushQueue.drainTo(batch, config.getBatchSize() - 1);
         for (Event event : batch) {
-            // todo 非空校验
-            var index = event.getField("index");
-            if (index.isEmpty()) {
-                continue;
-            }
-            // todo 改名
-            req.add(new IndexRequest(STR."\{index.get()}-silk").source(event.fieldMap()));
+            // todo bulk.add可能有oom风险
+            event.getField("index").ifPresent(index -> bulk.add(new IndexRequest(STR."\{index}").source(event.fieldMap())));
         }
-
-        submitBulkWithRetry(req, 0);
     }
 
-    private void submitBulkWithRetry(BulkRequest request, int retryCount) {
-        client.bulkAsync(request, RequestOptions.DEFAULT, new ActionListener<>() {
-            @Override
-            public void onResponse(BulkResponse response) {
-                if (response.hasFailures()) {
-                    log.warn("Bulk partial failure: {}", response.buildFailureMessage());
-                }
-                log.info("Bulk partial success.");
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                if (retryCount < maxRetry) {
-                    log.warn("Bulk failed, retrying ({}/{}): {}", retryCount + 1, maxRetry, e.getMessage());
-                    submitBulkWithRetry(request, retryCount + 1);
-                } else {
-                    log.error("Bulk failed after {}", maxRetry, e);
-                }
-            }
-        });
-    }
 }
