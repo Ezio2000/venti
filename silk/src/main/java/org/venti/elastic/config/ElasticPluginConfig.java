@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ElasticConfig {
+public class ElasticPluginConfig {
 
     private final String host;          // ES主机地址
 

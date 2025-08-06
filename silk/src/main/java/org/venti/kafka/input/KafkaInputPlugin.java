@@ -1,13 +1,12 @@
 package org.venti.kafka.input;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.venti.core.event.Event;
 import org.venti.core.input.InputPlugin;
+import org.venti.kafka.config.KafkaPluginConfig;
 
 import java.time.Duration;
 import java.util.*;
@@ -17,11 +16,17 @@ import java.util.stream.IntStream;
 @Slf4j
 public class KafkaInputPlugin implements InputPlugin {
 
+    private final KafkaPluginConfig config;
+
     private final List<Properties> propertiesList = new ArrayList<>();
 
     private final BlockingQueue<Event> eventQueue = new LinkedBlockingQueue<>();
 
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+    public KafkaInputPlugin(KafkaPluginConfig config) {
+        this.config = config;
+    }
 
     @Override
     public String getName() {
@@ -30,15 +35,9 @@ public class KafkaInputPlugin implements InputPlugin {
 
     @Override
     public void init() {
-        var properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "10.200.2.9:9092");
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "k2e-test-group");
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
-        properties.put("subscription", "topic_ruqi_big_service_log_ruqi_gateway");
-        propertiesList.add(properties);
+        config.getKafkaConsumerConfigList().forEach(consumerConfig -> {
+            propertiesList.add(consumerConfig.toProperties());
+        });
     }
 
     @Override
@@ -46,9 +45,10 @@ public class KafkaInputPlugin implements InputPlugin {
         propertiesList.forEach(properties -> {
             Runnable consumeRunnable = () -> {
                 try (var consumer = new KafkaConsumer<String, String>(properties)) {
-                    consumer.subscribe(List.of(properties.getProperty("subscription")), new LoggingRebalanceListener());
+                    consumer.subscribe(List.of(properties.getProperty(KafkaPluginConfig.SUBSCRIPTION)), new LoggingRebalanceListener());
+                    var pullTimeout = Long.parseLong(properties.getProperty(KafkaPluginConfig.PULL_TIMEOUT));
                     while (!Thread.currentThread().isInterrupted()) {
-                        var recordList = consumer.poll(Duration.ofMillis(100));
+                        var recordList = consumer.poll(Duration.ofMillis(pullTimeout));
                         for (var record : recordList) {
                             try {
                                 eventQueue.put(
@@ -68,9 +68,14 @@ public class KafkaInputPlugin implements InputPlugin {
                             }
                         }
                     }
+                } catch (Exception e) {
+                    log.error("消费者异常关闭", e);
                 }
             };
-            executor.submit(consumeRunnable);
+            var consumerCount = Integer.parseInt(properties.getProperty(KafkaPluginConfig.CONSUMER_COUNT));
+            for (int i = 0; i < consumerCount; i++) {
+                executor.submit(consumeRunnable);
+            }
         });
     }
 

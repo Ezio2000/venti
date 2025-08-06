@@ -12,9 +12,9 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.core.TimeValue;
 import org.venti.core.event.Event;
 import org.venti.core.output.OutputPlugin;
-import org.venti.elastic.config.ElasticConfig;
+import org.venti.elastic.config.ElasticPluginConfig;
 import org.venti.elastic.net.ElasticNetSupport;
-import org.venti.elastic.net.LoggingBulkListener;
+import org.venti.elastic.listener.LoggingBulkListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.concurrent.*;
 @Slf4j
 public class ElasticOutputPlugin implements OutputPlugin {
 
-    private final ElasticConfig config;
+    private final ElasticPluginConfig config;
 
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -33,7 +33,7 @@ public class ElasticOutputPlugin implements OutputPlugin {
 
     private volatile BulkProcessor bulk;
 
-    public ElasticOutputPlugin(ElasticConfig config) {
+    public ElasticOutputPlugin(ElasticPluginConfig config) {
         this.config = config;
     }
 

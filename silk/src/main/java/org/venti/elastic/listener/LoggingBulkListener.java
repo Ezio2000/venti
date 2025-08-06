@@ -1,4 +1,4 @@
-package org.venti.elastic.net;
+package org.venti.elastic.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.bulk.BulkProcessor;
