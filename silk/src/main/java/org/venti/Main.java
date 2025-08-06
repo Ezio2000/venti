@@ -16,7 +16,7 @@ public class Main {
                 .addConsumerConfig(
                         KafkaPluginConfig.KafkaConsumerConfig.builder()
                                 .server("10.200.2.9:9092")
-                                .topic("topic_ruqi_big_service_log_ruqi_gateway")
+                                .topic("k2e")
                                 .group("silk-test-group")
                                 .consumerCount(4)
                                 .pullTimeout(100L)
