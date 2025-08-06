@@ -58,6 +58,12 @@
                 <artifactId>cglib</artifactId>
                 <version>3.3.0</version>
             </dependency>
+            <!-- HdrHistogram -->
+            <dependency>
+                <groupId>org.hdrhistogram</groupId>
+                <artifactId>HdrHistogram</artifactId>
+                <version>2.2.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

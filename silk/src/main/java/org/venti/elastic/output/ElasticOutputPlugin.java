@@ -44,37 +44,39 @@ public class ElasticOutputPlugin implements OutputPlugin {
 
     @Override
     public void init() {
-        flushQueue = new LinkedBlockingQueue<>(config.getFlushCapacity());
+        flushQueue = new LinkedBlockingQueue<>(config.getBulkConfig().getCapacity());
         client = new RestHighLevelClient(
                 RestClient.builder(new HttpHost(config.getHost(), config.getPort(), config.getScheme()))
                         .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
                                 .setDefaultCredentialsProvider(ElasticNetSupport.createCredentialsProvider(config.getUsername(), config.getPassword()))
                                 .setSSLContext(ElasticNetSupport.createSSLContext())
-                                .setMaxConnTotal(config.getMaxConnTotal())
-                                .setMaxConnPerRoute(config.getMaxConnPerRoute())
+                                .setMaxConnTotal(config.getConnTotal())
+                                .setMaxConnPerRoute(config.getConnPerRoute())
                                 .setThreadFactory(Thread.ofVirtual().factory())
-                                .setDefaultIOReactorConfig(IOReactorConfig.custom().setIoThreadCount(config.getIoThreadCount()).build())
+                                .setDefaultIOReactorConfig(IOReactorConfig.custom().setIoThreadCount(1).build())
                         )
         );
         bulk = BulkProcessor.builder(
                         (req, listener) ->
                                 client.bulkAsync(req, RequestOptions.DEFAULT, listener),
                         new LoggingBulkListener(), "bulk")
-                .setBulkActions(config.getBatchSize())
+                .setBulkActions(config.getBulkConfig().getBatchSize())
 //                .setBulkSize(new ByteSizeValue(5, ByteSizeUnit.MB))
-                .setFlushInterval(TimeValue.timeValueMillis(config.getFlushInterval()))
-                .setConcurrentRequests(config.getConcurrentRequests())
-                .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(config.getBulkTimeout()), config.getBulkRetry()))
+                .setFlushInterval(TimeValue.timeValueMillis(config.getBulkConfig().getInterval()))
+                .setConcurrentRequests(config.getBulkConfig().getConcurrentRequests())
+                .setBackoffPolicy(BackoffPolicy.exponentialBackoff(TimeValue.timeValueMillis(config.getBulkConfig().getTimeout()), config.getBulkConfig().getRetryTimes()))
                 .build();
     }
 
     @Override
     public void start() {
-        executor.submit(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                flush();
-            }
-        });
+        for (int i = 0; i < config.getBulkConfig().getThreadCount(); i++) {
+            executor.submit(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
+                    flush();
+                }
+            });
+        }
     }
 
     @Override
@@ -109,9 +111,9 @@ public class ElasticOutputPlugin implements OutputPlugin {
             Thread.currentThread().interrupt();
             return;
         }
-        List<Event> batch = new ArrayList<>(config.getBatchSize());
+        List<Event> batch = new ArrayList<>(config.getBulkConfig().getBatchSize());
         batch.add(probeEvent);
-        flushQueue.drainTo(batch, config.getBatchSize() - 1);
+        flushQueue.drainTo(batch, config.getBulkConfig().getBatchSize() - 1);
         for (Event event : batch) {
             // todo bulk.add可能有oom风险
             event.getField("index").ifPresent(index -> bulk.add(new IndexRequest(STR."\{index}").source(event.fieldMap())));

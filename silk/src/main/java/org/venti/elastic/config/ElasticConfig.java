@@ -17,22 +17,30 @@ public class ElasticConfig {
 
     private final String password;      // 认证密码
 
-    private final int maxConnTotal;     // 最大连接数
+    private final int connTotal;     // 最大连接数
 
-    private final int maxConnPerRoute;  // 每路由最大连接数
+    private final int connPerRoute;  // 每路由最大连接数
 
-    private final int ioThreadCount;    // IO线程数
+    private final BulkConfig bulkConfig;
 
-    private final int batchSize;        // bulk批量写入大小
+    @Getter
+    @Builder
+    public static class BulkConfig {
 
-    private final int flushInterval;    // 刷新间隔(ms)
+        private final int batchSize;        // bulk批量写入大小
 
-    private final int flushCapacity;    // 待提交队列大小
+        private final int interval;    // 刷新间隔(ms)
 
-    private final int concurrentRequests; // bulk并发提交数
+        private final int capacity;    // 待提交队列大小
 
-    private final int bulkTimeout; // bulk提交超时时间
+        private final int threadCount;     // 提交线程数
 
-    private final int bulkRetry; // bulk最大重试次数
+        private final int concurrentRequests; // bulk并发提交数
+
+        private final int timeout; // bulk提交超时时间
+
+        private final int retryTimes; // bulk最大重试次数
+
+    }
 
 }
