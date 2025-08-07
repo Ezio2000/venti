@@ -20,7 +20,8 @@ public class KafkaInputPlugin implements InputPlugin {
 
     private final List<Properties> propertiesList = new ArrayList<>();
 
-    private final BlockingQueue<Event> eventQueue = new LinkedBlockingQueue<>();
+    // todo 这里要加入队列长度
+    private final BlockingQueue<Event> fetchQueue = new LinkedBlockingQueue<>();
 
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -51,7 +52,7 @@ public class KafkaInputPlugin implements InputPlugin {
                         var recordList = consumer.poll(Duration.ofMillis(pullTimeout));
                         for (var record : recordList) {
                             try {
-                                eventQueue.put(
+                                fetchQueue.put(
                                         Event.of("kafka-record", record.value())
                                                 .withField("topic", record.topic())
                                                 .withField("partition", record.partition())
@@ -95,7 +96,7 @@ public class KafkaInputPlugin implements InputPlugin {
         IntStream.of(readNum).forEach(_ -> {
             Event event;
             try {
-                event = eventQueue.take();
+                event = fetchQueue.take();
             } catch (InterruptedException e) {
                 return;
             }
