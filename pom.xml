@@ -12,11 +12,11 @@
     <modules>
         <module>common</module>
         <module>nacos</module>
-        <module>spring</module>
         <module>mybatis</module>
         <module>guarantee</module>
         <module>jdbc</module>
         <module>silk</module>
+        <module>hermes</module>
     </modules>
 
     <dependencies>

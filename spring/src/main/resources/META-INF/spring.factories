@@ -1,3 +1,0 @@
-# SpringApplicationRunListener
-#org.springframework.boot.SpringApplicationRunListener=\
-#  org.venti.spring.nacos.NacosApplicationRunListener
